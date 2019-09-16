@@ -143,10 +143,16 @@ range rangeAddScalar(range range1, decimal scalar)
 		range1.min = scalar;
 	return range1;
 }
-//bool inRange(decimal value, range range1)
-//{
-//	return (value > range1.min && value < range1.max);
-//}
+
+bool inRange(decimal value, range range1)
+{
+	return (value > range1.min && value < range1.max);
+}
+
+bool rangeIntersect(range range1, range range2)
+{
+	return range1.max > range2.min && range2.max > range1.min;
+}
 
 axisAlignedRectangle aabbRectangleGenerate(point2D* points, unsigned int size)
 {

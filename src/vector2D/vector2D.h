@@ -98,6 +98,7 @@ decimal vectorAngle(vector2D vector1);
 
 range rangeCreate(decimal a, decimal b);
 range rangeAddScalar(range range1, decimal scalar);
+bool rangeIntersect(range range1, range range2);
 
 axisAlignedRectangle aabbRectangleGenerate(point2D* points, unsigned int size);
 

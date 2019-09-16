@@ -309,21 +309,51 @@ bool axisAlignedRectangle_axisAlignedRectangle_collision(axisAlignedRectangle a,
 		&& floatIsNearlyEqual(a.center.y, b.center.y, a.halfSize.y + b.halfSize.y); //y axis collision
 }
 
-/*
+range projectPolygon(convexPolygon* convexPolygon1, vector2D* axis)
+{
+	range returned;
+	returned.min = convexPolygon1->points[0];
+	returned.max = returned.min;
+
+	for (unsigned i = 0; i < convexPolygon1->size; i++)
+	{
+		decimal dotProd = dotProduct(convexPolygon1->points[i], axis);
+		returned = rangeAddScalar(returned, dotProd);
+	}
+	return returned;
+}
+
+//SAT algorithm
 bool convexPolygon_convexPolygon_collision(convexPolygon convexPolygon1, convexPolygon convexPolygon2)
 {
+	vector2D normal;
+	range range1, range2;
+
 	for (unsigned int i = 0; i < convexPolygon1.size; i++)
 	{
-		vector2D normal = normalVector(substractVectors(convexPolygon1.points[i], convexPolygon1.points[((i + 1) % convexPolygon1.size]));
-		decimal projection = dotProduct(convexPolygon1.points[0], normal);
-		range range1 = {projection, projection};
-		for (unsigned int j = 1; j < convexPolygon1.size; j++)
+		normal = normalVector(substractVectors(convexPolygon1.points[i], convexPolygon1.points[((i + 1) % convexPolygon1.size]));
+
+		range1 = projectPolygon(convexPolygon1, &normal);
+		range2 = projectPolygon(convexPolygon2, &normal);
+
+		if (!rangeIntersect(range1, range2))
 		{
-			projection = dotProduct(convexPolygon1.points[j], normal);
-			rangeAddScalar(range1, projection);
-			//TODO NEXT
+			return false;
 		}
 	}
-	return false;
+
+	for (unsigned int i = 0; i < convexPolygon2.size; i++)
+	{
+		normal = normalVector(substractVectors(convexPolygon2.points[i], convexPolygon2.points[((i + 1) % convexPolygon1.size]));
+
+		range1 = projectPolygon(convexPolygon1, &normal);
+		range2 = projectPolygon(convexPolygon2, &normal);
+
+		if (!rangeIntersect(range1, range2))
+		{
+			return false;
+		}
+	}
+
+	return true;
 }
-*/
