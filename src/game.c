@@ -1,7 +1,8 @@
 #include "game.h"
 
 #include "SDL_utilities/SDL_utilities.h"
-#include "entities.h"
+#include "entities/entities.h"
+#include "entities/player.h"
 
 int main()
 {
@@ -14,7 +15,8 @@ int main()
 	//audio_add(assets->audio, "media/GourmetRace.wav");
 	//font_add(assets->font, "media/arial.ttf", 10);
 	//
-	t_entity* entity = entity_create();
+	//t_entity* entity = entity_create();
+	t_player* player = player_create();
 
 	if (render_get(assets->render, 0) != NULL)
 		printf("DATA\n");
@@ -31,7 +33,8 @@ int main()
 		int time = SDL_GetTicks();
 		while (time - lastTime > 15)
 		{
-			entity_tick(entity);
+			//entity_tick(entity);
+			player_tick(player);
 			lastTime += 15;
 			//lastTime = time;
 		}
@@ -42,19 +45,19 @@ int main()
 			if (event.type == SDL_KEYDOWN) //click
 			{
 				int key = event.key.keysym.sym;
-				entity_input(entity, key);
+				player_input_start(player, key, true);
 			}
 			if (event.type == SDL_KEYUP) //release
 			{
 				int key = event.key.keysym.sym;
-				key = key;
+				player_input_start(player, key, false);
 			}
 			if (event.type == SDL_QUIT)
 				run = 0;
 		}
 
-		//render_things();
-		entity_render(entity, assets->render);
+		//entity_render(entity, assets->render);
+		player_render(player, assets->render);
 		SDL_RenderPresent(assets->render->renderer);
 
 		SDL_Delay(1);

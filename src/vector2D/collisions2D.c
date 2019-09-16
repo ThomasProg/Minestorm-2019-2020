@@ -327,34 +327,3 @@ bool convexPolygon_convexPolygon_collision(convexPolygon convexPolygon1, convexP
 	return false;
 }
 */
-
-axisAlignedRectangle aabbRectangleGenerate(point2D* points, unsigned int size)
-{
-	axisAlignedRectangle rect;
-	if (/*points != NULL ||*/ size == 0)
-	{
-		printf("TESTING");
-		return rect;//assert() //TODO ERROR
-	}
-
-	vector2D min = points[0];
-	vector2D max = min;
-	for (int i = 1; i < size; i++)
-	{
-		if (points[i].x < min.x)
-			min.x = points[i].x;
-		if (points[i].y < min.y)
-			min.y = points[i].y;
-
-		if (points[i].x > max.x)
-			max.x = points[i].x;
-		if (points[i].y > max.y)
-			max.y = points[i].y;			
-	}
-
-	rect.halfSize.x = (max.x - min.x) / 2;
-	rect.halfSize.y = (max.y - min.y) / 2;
-	rect.center.x = min.x + rect.halfSize.x;
-	rect.center.y = min.y + rect.halfSize.y;
-	return rect;
-}

@@ -1,11 +1,12 @@
 #include "render.h"
+#include "macros.h"
 #include <SDL2/SDL_image.h>
 
 t_render* render_create(const unsigned int nbTextures)
 {
 	t_render* render = malloc(sizeof(*render));
 	render->textures = queue_create(nbTextures, sizeof(SDL_Texture*));
-	render->window = SDL_CreateWindow("window name", SDL_WINDOWPOS_CENTERED, SDL_WINDOW_SHOWN, 1000, 600, SDL_WINDOW_SHOWN);
+	render->window = SDL_CreateWindow("MINESTORM", SDL_WINDOWPOS_CENTERED, SDL_WINDOW_SHOWN, WINDOW_SIZE_X, WINDOW_SIZE_Y, SDL_WINDOW_SHOWN);
 	render->renderer = SDL_CreateRenderer(render->window, -1, SDL_RENDERER_ACCELERATED);
 
 	return render;

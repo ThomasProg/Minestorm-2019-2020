@@ -33,5 +33,3 @@ bool circle_circle_collision(circle a, circle b);
 bool axisAlignedRectangle_axisAlignedRectangle_collision(axisAlignedRectangle a, axisAlignedRectangle b);
 
 bool convexPolygon_convexPolygon_collision(convexPolygon convexPolygon1, convexPolygon convexPolygon2);
-
-axisAlignedRectangle aabbRectangleGenerate(point2D* points, unsigned int size);

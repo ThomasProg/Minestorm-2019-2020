@@ -67,12 +67,12 @@ vector2D negateVector(vector2D vec)
 
 vector2D rotateVector(vector2D vec, decimal angle)
 {
-	decimal cosinus = cos(angle);
-	decimal sinus = sin(angle);
+	decimal cosinus = cosf(angle);
+	decimal sinus = sinf(angle);
 	return (vector2D) { vec.x * cosinus - vec.y * sinus, vec.x * sinus + vec.y * cosinus };
 }
 
-vector2D rotateVector90(vector2D vec, decimal angle)
+vector2D rotateVector90(vector2D vec)
 {
 	return (vector2D) { - vec.y, vec.x };
 }
@@ -97,6 +97,15 @@ decimal dotProduct(vector2D u, vector2D v)
 	return u.x * v.x + u.y * v.y;
 }
 
+decimal vectorAngle(vector2D vector1)
+{
+	// decimal angle = acosf(vector1.x);
+	// if (vector1.y < 0)
+	// 	angle *= -1;
+	// return acosf(vector1.x);
+	return atan2f(vector1.x, vector1.y); //TODO
+}
+
 decimal vectorsAngle(vector2D vector1, vector2D vector2)
 {
 	return acos(dotProduct(vector1, vector2) / vectorLength(vector1) / vectorLength(vector2));
@@ -109,7 +118,7 @@ line segmentToLine(segment segment1)
 	line1.point = segment1.pointA;
 	return line1;
 }
-
+ 
 range rangeCreate(decimal a, decimal b)
 {
 	range r;
@@ -138,3 +147,33 @@ range rangeAddScalar(range range1, decimal scalar)
 //{
 //	return (value > range1.min && value < range1.max);
 //}
+
+axisAlignedRectangle aabbRectangleGenerate(point2D* points, unsigned int size)
+{
+	axisAlignedRectangle rect;
+	if (/*points != NULL ||*/ size == 0)
+	{
+		return rect;//assert() //TODO ERROR
+	}
+
+	vector2D min = points[0];
+	vector2D max = min;
+	for (int i = 1; i < size; i++)
+	{
+		if (points[i].x < min.x)
+			min.x = points[i].x;
+		if (points[i].y < min.y)
+			min.y = points[i].y;
+
+		if (points[i].x > max.x)
+			max.x = points[i].x;
+		if (points[i].y > max.y)
+			max.y = points[i].y;			
+	}
+
+	rect.halfSize.x = (max.x - min.x) / 2;
+	rect.halfSize.y = (max.y - min.y) / 2;
+	rect.center.x = min.x + rect.halfSize.x;
+	rect.center.y = min.y + rect.halfSize.y;
+	return rect;
+}

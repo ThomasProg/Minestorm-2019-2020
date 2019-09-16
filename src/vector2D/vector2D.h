@@ -82,7 +82,7 @@ vector2D negateVector(vector2D vec);
 
 vector2D rotateVector(vector2D vec, decimal angle);
 
-vector2D rotateVector90(vector2D vec, decimal angle);
+vector2D rotateVector90(vector2D vec);
 
 vector2D rotatePoint(point2D toRotate, point2D center, decimal angle);
 
@@ -92,7 +92,13 @@ decimal dotProduct(vector2D u, vector2D v);
 
 line segmentToLine(segment segment1);
 
+decimal vectorsAngle(vector2D vector1, vector2D vector2);
+
+decimal vectorAngle(vector2D vector1);
+
 range rangeCreate(decimal a, decimal b);
 range rangeAddScalar(range range1, decimal scalar);
+
+axisAlignedRectangle aabbRectangleGenerate(point2D* points, unsigned int size);
 
 #endif
