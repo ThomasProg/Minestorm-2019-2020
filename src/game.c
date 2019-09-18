@@ -11,6 +11,74 @@
 
 #include <time.h>
 
+#include "world.h"
+
+void menu_loop()
+{
+	
+}
+
+void game_loop(game* game)
+{
+	SDL_Renderer* renderer = game->assets->render->renderer;
+	int lastTime = 0.0, time;
+	float deltaTime = 0.0; deltaTime = deltaTime;
+
+	while (game->run)
+	{
+		time = SDL_GetTicks();
+		deltaTime = (time - lastTime) / 1000.f;
+
+		//clear_screen();
+		SDL_SetRenderDrawColor(renderer, 0x0F, 0x0F, 0x0F, 0xFF);
+		SDL_RenderClear(renderer);
+		
+		switch (game->level.levelID)
+		{
+			case E_MENU :
+				menu_loop();
+				break;
+			case E_PLAY : 
+				//world_loop(game->assets, deltaTime, savedData);
+				break;
+			default : 
+				break;
+		}
+
+		SDL_RenderPresent(renderer);
+
+		SDL_Delay(1);
+	}
+}
+
+bool game_init(game* game)
+{
+	srand(time(NULL));   // Initialization, should only be called once.
+
+	if (SDL_Init(SDL_INIT_VIDEO|SDL_INIT_AUDIO) != 0) 
+		return 0;
+
+	t_assets* assets = assets_create(50, 4, 1); //50 images, 4 sounds, 1 font
+	
+	render_add(assets->render, "media/Stickman_Sprite_Sheet.png");
+	//audio_add(assets->audio, "media/GourmetRace.wav");
+	//font_add(assets->font, "media/arial.ttf", 10);
+
+	game->assets = assets;
+	game->level.levelID = E_PLAY;
+	return 1;
+}
+
+void startGame()
+{
+	game game;
+	if (!game_init(&game))
+		return; //return if fail to load SDL
+	
+	game_loop(&game);
+
+}
+
 int main()
 {
 	srand(time(NULL));   // Initialization, should only be called once.
@@ -26,35 +94,37 @@ int main()
 	//
 	//t_entity* entity = entity_create();
 	t_player* player = player_create();
+	player->inputValues = getInputValues1();
+
+	t_player* player2 = player_create();
+	player2->inputValues = getInputValues2();
 
 	t_floatingMine* floatingMine = floatingMine_create();
 	t_magneticMine* magneticMine = magneticMine_create();
 	t_fireballMine* fireballMine = fireballMine_create();
-	t_bullet** bullets = malloc(sizeof(t_bullet));
+	//t_bullet** bullets = malloc(sizeof(t_bullet));
 
 	magneticMine->target = player;
 	
-	//TODO : gamestate
-	int run = 1;
+	game game;
+	game.level.levelID = E_MENU;
+	game.run = true;
 	int lastTime = 0;
-	while (run)
+	while (game.run)
 	{
 		//clear_screen();
 		SDL_SetRenderDrawColor(assets->render->renderer, 0x0F, 0x0F, 0x0F, 0xFF);
 		SDL_RenderClear(assets->render->renderer);
 		
 		int time = SDL_GetTicks();
-		// while (time - lastTime > 15)
-		// {
-			//entity_tick(entity);
-			float deltaTick = (time - lastTime) / 1000.f;
-			player_tick(player, deltaTick);
-			floatingMine_tick(floatingMine, deltaTick);
-			magneticMine_tick(magneticMine, deltaTick);
-			fireballMine_tick(fireballMine, deltaTick);
-			bullet_tick(bullets[0], deltaTick);
-			//lastTime = time;
-		//}
+		float deltaTick = (time - lastTime) / 1000.f;
+
+		player_tick(player, deltaTick);
+		player_tick(player2, deltaTick);
+		floatingMine_tick(floatingMine, deltaTick);
+		magneticMine_tick(magneticMine, deltaTick);
+		fireballMine_tick(fireballMine, deltaTick);
+
 		lastTime = time;
 
 		SDL_Event event;
@@ -63,18 +133,24 @@ int main()
 			if (event.type == SDL_KEYDOWN) //click
 			{
 				int key = event.key.keysym.sym;
+				if (key == SDLK_ESCAPE)
+					game.run = false;
+
 				player_input_start(player, key, true);
+				player_input_start(player2, key, true);
 			}
 			if (event.type == SDL_KEYUP) //release
 			{
 				int key = event.key.keysym.sym;
 				player_input_start(player, key, false);
+				player_input_start(player2, key, false);
 			}
 			if (event.type == SDL_QUIT)
-				run = 0;
+				game.run = false;
 		}
 
-		player_event(player, bullets);
+		//player_event(player, bullets);
+		//player_event(player2, bullets);
 
 		//t_bullet* bullet = bullet_create();
 		//entity_render(entity, assets->render);
@@ -82,7 +158,8 @@ int main()
 		magneticMine_render(magneticMine, assets->render);
 		fireballMine_render(fireballMine, assets->render);
 		player_render(player, assets->render);
-		bullet_render(assets->render->renderer, bullets[0], 10);
+		player_render(player2, assets->render);
+		//bullet_render(assets->render->renderer, bullets[0], 10);
 
 		{
 			convexPolygon* playerColl = &((convexPolygonsArray*) player->entity.collision)->polygons[0];
@@ -110,13 +187,13 @@ int main()
 			}
 		}
 
-		//bullet collision
-		{
-			if (circle_convexPolygon_collision(bullets[0]->collision, ((convexPolygonsArray*) fireballMine->entity.collision)->polygons[0]))
-			{
-				fprintf(stderr, "REMOVE\n");
-			}
-		}
+		// //bullet collision
+		// {
+		// 	if (circle_convexPolygon_collision(bullets[0]->collision, ((convexPolygonsArray*) fireballMine->entity.collision)->polygons[0]))
+		// 	{
+		// 		//fprintf(stderr, "game.c:125 / circle_convexPolygon_collision\n");
+		// 	}
+		// }
 
 		SDL_RenderPresent(assets->render->renderer);
 

@@ -6,19 +6,24 @@
 #define WINDOW_SIZE_Y 800
 
 //Entities Physics
-#define AIR_FRICTION 0.0005
-#define SPEED_LIMIT 0.7
+#define AIR_FRICTION 600.f
+#define SPEED_LIMIT 700.f
 
 //Player Physics
-#define ANGULAR_SPEED 4.0
-#define ACCELERATION 3.0
-#define SHIP_SIZE 1.0
+#define ANGULAR_SPEED 4.f
+#define ACCELERATION 3000.f
+#define ENTITY_MASS 3.f
+#define SHIP_SIZE 0.25f
 
 //Mines stats
-#define MAGNETIC_MINE_SPEED 0.3
+#define MAGNETIC_MINE_SPEED 125.f
 
+//Bullets stats
+#define BULLETS_SIZE 7.f
+#define BULLETS_PRECISION 15.f
+#define BULLETS_TIME_ALIVE 2.f
 
 //Maths
-#define PI 3.14159265359
+#define PI 3.14159265359f
 
 #endif

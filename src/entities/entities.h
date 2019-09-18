@@ -42,7 +42,6 @@ void entity_init(t_entity* entity);
 void entity_render(t_entity* entity, t_render* render);
 
 void entity_tick(t_entity* entity, float deltaTime);
-void entity_border_teleportation(t_entity* entity);
 
 void entity_move(t_entity* entity, E_MOVE move, float deltaTick);
 void entity_teleport(t_entity* entity);

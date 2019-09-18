@@ -60,7 +60,9 @@ void magneticMine_tick(t_magneticMine* magneticMine, float deltaTime)
         shortestPath = getShortestPath(shortestPath, substractVectors(mineLoc, targetYP));
         shortestPath = getShortestPath(shortestPath, substractVectors(mineLoc, targetYM));
 
-        vector2D direction = unitVector(shortestPath);
+        vector2D direction = nullVector();
+        if (vectorLength(shortestPath) != 0.f)
+            direction = unitVector(shortestPath);
 
         magneticMine->entity.velocity = scaleVector(direction, MAGNETIC_MINE_SPEED);
     }

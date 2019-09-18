@@ -1,4 +1,7 @@
 #include <time.h>
+#include <stdlib.h>
+
+#include <SDL2/SDL.h>
 
 #include "player.h"
 #include "bullets.h"
@@ -22,21 +25,57 @@ void player_collision_init(convexPolygonsArray* collision)
 	points[2] = (point2D) {100.0, 0.0};
 	collision->polygons[1].size = 3;	
 	collision->polygons[1].points = points;	
+
+	//scale convexPolygonsArray
+	for (unsigned int i = 0; i < collision->numberOfPolygons; i++)
+	{	
+		for (unsigned int j = 0; j < collision->polygons[i].size; j++)
+		{
+			collision->polygons[i].points[j] = scaleVector(collision->polygons[i].points[j], SHIP_SIZE);
+		}
+	}
 }
 
-inputs input_create()
+bInputs bInput_create()
 {
-	inputs inputs;
-	inputs.isForward = false;
-	inputs.isLeft = false;
-	inputs.isRight = false;
+	bInputs bInputs;
+	bInputs.isForward = false;
+	bInputs.isLeft = false;
+	bInputs.isRight = false;
+	bInputs.shoot = false;
 
-	return inputs;
+	return bInputs;
+}
+
+inputValues getInputValues1()
+{
+	inputValues inputValues;
+	inputValues.forward = SDLK_r;
+	inputValues.shoot = SDLK_f;
+	inputValues.right = SDLK_g;
+	inputValues.left = SDLK_d;
+	inputValues.teleport1 = SDLK_e;
+	inputValues.teleport2 = SDLK_t;
+
+	return inputValues;
+}
+
+inputValues getInputValues2()
+{
+	inputValues inputValues;
+	inputValues.forward = SDLK_i;
+	inputValues.shoot = SDLK_k;
+	inputValues.right = SDLK_l;
+	inputValues.left = SDLK_j;
+	inputValues.teleport1 = SDLK_u;
+	inputValues.teleport2 = SDLK_o;
+
+	return inputValues;
 }
 
 t_player* player_create()
 {
-	t_player* player = malloc(sizeof(*player));
+	t_player* player = malloc(sizeof(t_player));
 
     entity_init(&player->entity);
 
@@ -46,9 +85,11 @@ t_player* player_create()
 
 	player->life = 0;
 	player->score = 0;
-	player->bullet = false;
 
-	player->inputs = input_create();
+	player->nbBullets = 0;
+	player->bullets = NULL;
+
+	player->bInputs = bInput_create();
 
 	return player;
 }
@@ -57,6 +98,11 @@ void player_render(t_player* player, t_render* render)
 {
     entity_render(&player->entity, render);
     convexPolygonsArray_render(render->renderer, player->entity.collision, &player->entity.ref);
+
+	for (unsigned int i = 0; i < player->nbBullets; i++)
+	{
+		bullet_render(render->renderer, player->bullets[i], BULLETS_PRECISION);
+	}
     
     //player->entity.aabb = aabbRectangleGenerate(collision->leftSide.points, 4);
     // axisAlignedRectangle rec = aabbRectangleGenerate(collision->leftSide.points, 4);
@@ -68,57 +114,103 @@ void player_tick(t_player* player, float deltaTime)
 {
     player_inputs_run(player, deltaTime);
     entity_tick(&player->entity, deltaTime);
+
+	for (unsigned int i = 0; i < player->nbBullets; i++)
+	{
+		bullet_tick(player->bullets[i], deltaTime);
+	}
 }
 
 void player_inputs_run(t_player* player, float deltaTime)
 {
-	if (player->inputs.isForward)
+	if (player->bInputs.isForward)
 	{
 		entity_move(&player->entity, E_FORWARD, deltaTime);
 	}
 
-	if (player->inputs.isLeft)
+	if (player->bInputs.isLeft)
 	{
 		entity_move(&player->entity, E_LEFT, deltaTime);
 	}
 
-	if (player->inputs.isRight)
+	if (player->bInputs.isRight)
 	{
 		entity_move(&player->entity, E_RIGHT, deltaTime);
 	}
+
+	// if (player->bInputs.shoot)
+	// {
+	// 	entity_move(&player->entity, -1, deltaTime);
+	// }
 }
 
 void player_input_start(t_player* player, int key, bool start)
 {
-	switch (key)
+	if (key == player->inputValues.forward)
 	{
-		case SDLK_r :
-			player->inputs.isForward = start;
-			break;
+		player->bInputs.isForward = start;
+	}		
+	if (key == player->inputValues.left)
+	{
+		player->bInputs.isLeft = start;
+	}
+	if (key == player->inputValues.right)
+	{
+		player->bInputs.isRight = start;
+	}
 		
-		case SDLK_d :
-			player->inputs.isLeft = start;
-			break;
-		case SDLK_g :
-			player->inputs.isRight = start;
-			break;
-		
-		case SDLK_e :
-			entity_teleport(&player->entity);
-			break;
+	if (key == player->inputValues.teleport1 || key == player->inputValues.teleport2)
+	{
+		entity_teleport(&player->entity);
+	}
 
-		case SDLK_t :
-			entity_teleport(&player->entity);
-			break;
+	if (key == player->inputValues.shoot)
+	{
+		vector2D bulletLocation = player->entity.ref.origin;
+		bulletLocation = addVectors(bulletLocation, scaleVector(player->entity.ref.unitI, 100.0 * SHIP_SIZE));
 
-		case SDLK_f :
-			player->bullet = true;
-			break;
+		t_bullet* bullet = NULL;
+		if (player->bullets == NULL && player->nbBullets == 0)
+		{
+			player->nbBullets = 1;
+			player->bullets = malloc(sizeof(t_bullet*));
+			bullet = bullet_create();
+			player->bullets[0] = bullet;
+		}
+		else
+		{	
+			unsigned int i = 0;
+			while (i < player->nbBullets)
+			{
+				if (!player->bullets[i]->isAlive)
+				{
+					bullet = player->bullets[i];
+					break;
+				}
+				i++;
+			}
+			if (bullet == NULL)
+			{
+				unsigned int currentLoc = i;
+				player->nbBullets *= 2;
+				player->bullets = realloc(player->bullets, player->nbBullets * sizeof(t_bullet*));
+				while (i < player->nbBullets)
+				{
+					player->bullets[i] = bullet_create();
+					i++;
+				}
+				bullet = player->bullets[currentLoc];
+			}
+		}
+		player->bullets[player->nbBullets] = bullet_create(bulletLocation, player->entity.ref.unitI);
+		bullet_init(bullet, bulletLocation, player->entity.velocity, player->entity.ref.unitI);
+		player->bInputs.shoot = false;
 	}
 }
 
 void player_event(t_player* player, t_bullet** bullets)
 {
+	/*
 	if (player->bullet)
 	{
 		vector2D bulletLocation = player->entity.ref.origin;
@@ -126,4 +218,5 @@ void player_event(t_player* player, t_bullet** bullets)
 		bullets[0] = bullet_create(bulletLocation, player->entity.ref.unitI);
 		player->bullet = false;
 	}
+	*/
 }

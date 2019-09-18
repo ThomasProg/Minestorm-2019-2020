@@ -1,5 +1,6 @@
 #include "entities.h"
 #include "player.h"
+#include "worldField.h"
 #include "macros.h"
 
 #include <time.h>
@@ -68,24 +69,6 @@ float airFriction(float value, float friction)
 	return value;
 }
 
-void entity_border_teleportation(t_entity* entity)
-{
-	vector2D *location = &entity->ref.origin;
-
-	//teleport if is out of border
-	if (location->x < 0.0)
-		location->x = WINDOW_SIZE_X;
-
-	if (location->x > WINDOW_SIZE_X)
-		location->x = 0.0;
-
-	if (location->y < 0.0)
-		location->y = WINDOW_SIZE_Y;
-
-	if (location->y > WINDOW_SIZE_Y)
-		location->y = 0.0;
-}
-
 void entity_tick(t_entity *entity, float deltaTime)
 {
 	vector2D *velocity = &entity->velocity,
@@ -95,25 +78,26 @@ void entity_tick(t_entity *entity, float deltaTime)
 	float totalSpeed = vectorLength(*velocity);
 	if (totalSpeed > 0)
 	{
-		if (totalSpeed < AIR_FRICTION)
+		if (totalSpeed < deltaTime * AIR_FRICTION)
 			*velocity = nullVector();
 		else
-			*velocity = scaleVector(unitVector(*velocity), totalSpeed - AIR_FRICTION);
+			*velocity = scaleVector(unitVector(*velocity), totalSpeed - deltaTime * AIR_FRICTION);
 	}
 
 	//add speed to loc
-	location->x += velocity->x;
-	location->y += velocity->y;
+	location->x += velocity->x * deltaTime;
+	location->y += velocity->y * deltaTime;
 
-	entity_border_teleportation(entity);
+	border_teleportation(&entity->ref.origin);
 
-	//straighten velocity
+	// //straighten velocity
 	float velocityMagnitude = vectorLength(*velocity);
 	if (velocityMagnitude != 0.f)
 	{
 		*velocity = worldToLocal_vector2D(*velocity, entity->ref);
 		velocity->x += 1 * deltaTime;
-		*velocity = scaleVector(unitVector(*velocity), velocityMagnitude);
+		if (vectorLength(*velocity) != 0.f)
+			*velocity = scaleVector(unitVector(*velocity), velocityMagnitude);
 		*velocity = localToWorld_vector2D(*velocity, entity->ref);
 	}
 }
@@ -141,7 +125,7 @@ void entity_move(t_entity* entity, E_MOVE move, float deltaTick)
 
 		case E_FORWARD:
 			acc.x = 0;
-			acc.y = ACCELERATION * deltaTick;
+			acc.y = ACCELERATION * deltaTick / ENTITY_MASS;
 			angle = -vectorAngle(entity->ref.unitI);
 			acc = rotateVector(acc, angle);
 

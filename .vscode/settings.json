@@ -6,6 +6,12 @@
         "initializer_list": "c",
         "utility": "c",
         "magnetic_mine.h": "c",
-        "fireball_mine.h": "c"
+        "fireball_mine.h": "c",
+        "*.tcc": "c",
+        "memory": "c",
+        "functional": "c",
+        "istream": "c",
+        "tuple": "c",
+        "world.h": "c"
     }
 }
