@@ -13,4 +13,5 @@
 void mine_collisionBox_init(convexPolygonsArray* collision, 
     unsigned int nbPolygons, float size1, float size2);
 
+void* mine_spawn(vector2D* spawners, unsigned int nbSpawners, int type);
 #endif

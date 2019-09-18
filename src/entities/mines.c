@@ -1,3 +1,9 @@
+#include <assert.h>
+
+#include "entities/mines_subtype/floating_mine.h"
+#include "entities/mines_subtype/magnetic_mine.h"
+#include "entities/mines_subtype/fireball_mine.h"
+
 #include "mines.h"
 #include "macros.h"
 
@@ -34,4 +40,33 @@ void mine_collisionBox_init(convexPolygonsArray* collision,
 
         collision->polygons[i].points = points;
     }
+}
+
+//TODO : enum Mine Type
+void* mine_spawn(vector2D* spawners, unsigned int nbSpawners, int type)
+{
+    if (type == 0)
+    {
+        t_floatingMine* floatingMine;
+        floatingMine = floatingMine_create();
+        floatingMine->entity.ref.origin = spawners[nbSpawners];
+        return floatingMine;
+    }
+    if (type == 1)
+    {
+        t_magneticMine* magneticMine;
+        magneticMine = magneticMine_create();
+        magneticMine->entity.ref.origin = spawners[nbSpawners];
+        return magneticMine;
+    }
+    if (type == 2)
+    {
+        t_fireballMine* fireballMine;
+        fireballMine = fireballMine_create();
+        fireballMine->entity.ref.origin = spawners[nbSpawners];
+        return fireballMine;
+    }
+
+    assert(true); //type input is invalid : type must be from 0 to 3
+    return NULL;
 }

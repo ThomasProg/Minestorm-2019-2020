@@ -103,7 +103,10 @@ void player_render(t_player* player, t_render* render)
 	{
 		bullet_render(render->renderer, player->bullets[i], BULLETS_PRECISION);
 	}
-    
+
+    //printf("x : %f y : %f\n", player->entity.ref.origin.x, player->entity.ref.origin.y);
+	//printf("x : %f y : %f\n", player->entity.velocity.x, player->entity.velocity.y);
+
     //player->entity.aabb = aabbRectangleGenerate(collision->leftSide.points, 4);
     // axisAlignedRectangle rec = aabbRectangleGenerate(collision->leftSide.points, 4);
     // rec.center = addVectors(rec.center, player->entity.ref.origin); 
@@ -113,6 +116,7 @@ void player_render(t_player* player, t_render* render)
 void player_tick(t_player* player, float deltaTime)
 {
     player_inputs_run(player, deltaTime);
+
     entity_tick(&player->entity, deltaTime);
 
 	for (unsigned int i = 0; i < player->nbBullets; i++)

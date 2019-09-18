@@ -1,5 +1,7 @@
 #include "worldField.h"
 #include "macros.h"
+#include "time.h"
+#include <stdlib.h>
 
 void border_teleportation(vector2D* location)
 {
@@ -15,4 +17,12 @@ void border_teleportation(vector2D* location)
 
 	if (location->y > WINDOW_SIZE_Y)
 		location->y -= WINDOW_SIZE_Y;
+}
+
+vector2D getRandomLocation()
+{
+	vector2D vec;
+	vec.x = rand() % WINDOW_SIZE_X;
+	vec.y = rand() % WINDOW_SIZE_Y;
+	return vec;
 }

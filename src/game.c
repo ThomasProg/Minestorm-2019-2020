@@ -22,15 +22,18 @@ void game_loop(game* game)
 {
 	SDL_Renderer* renderer = game->assets->render->renderer;
 	int lastTime = 0.0, time;
-	float deltaTime = 0.0; deltaTime = deltaTime;
+	float deltaTime;
+
+	level_init(&game->level, E_PLAY);
 
 	while (game->run)
 	{
 		time = SDL_GetTicks();
 		deltaTime = (time - lastTime) / 1000.f;
+		lastTime = time;
 
 		//clear_screen();
-		SDL_SetRenderDrawColor(renderer, 0x0F, 0x0F, 0x0F, 0xFF);
+		SDL_SetRenderDrawColor(renderer, 0x00, 0x10, 0x10, 0xFF);
 		SDL_RenderClear(renderer);
 		
 		switch (game->level.levelID)
@@ -39,8 +42,9 @@ void game_loop(game* game)
 				menu_loop();
 				break;
 			case E_PLAY : 
-				//world_loop(game->assets, deltaTime, savedData);
+				world_loop(game->assets, deltaTime, game);
 				break;
+
 			default : 
 				break;
 		}
@@ -49,6 +53,8 @@ void game_loop(game* game)
 
 		SDL_Delay(1);
 	}
+	
+	level_destroy(&game->level);
 }
 
 bool game_init(game* game)
@@ -81,6 +87,8 @@ void startGame()
 
 int main()
 {
+	startGame();
+	return 0;
 	srand(time(NULL));   // Initialization, should only be called once.
 
 	if (SDL_Init(SDL_INIT_VIDEO|SDL_INIT_AUDIO) != 0) 

@@ -6,13 +6,13 @@
 #include <time.h>
 #include <stdlib.h>
 
-t_entity *entity_create()
+t_entity* entity_create()
 {
 	t_entity *entity = malloc(sizeof(*entity));
 	return entity;
 }
 
-void entity_init(t_entity *entity)
+void entity_init(t_entity* entity)
 {
 	entity->ref.unitI = (vector2D){1.f, 0.f};
 	entity->ref.unitJ = (vector2D){0.f, 1.f};
@@ -39,7 +39,7 @@ convexPolygon* entity_get_convexPolygons(void* collision, E_COLLISION_TYPE colli
 	return NULL;
 }
 
-void entity_render(t_entity *entity, t_render *render)
+void entity_render(t_entity* entity, t_render* render)
 {
 	entity->texture = render_get(render, 0);
 
@@ -69,7 +69,7 @@ float airFriction(float value, float friction)
 	return value;
 }
 
-void entity_tick(t_entity *entity, float deltaTime)
+void entity_tick(t_entity* entity, float deltaTime)
 {
 	vector2D *velocity = &entity->velocity,
 			 *location = &entity->ref.origin;
