@@ -1,68 +1,47 @@
 #include "entities.h"
+#include "player.h"
+#include "macros.h"
 
 #include <time.h>
-#include "macros.h"
 #include <stdlib.h>
 
-t_entity* entity_create()
+t_entity *entity_create()
 {
-	t_entity* entity = malloc(sizeof(*entity));
+	t_entity *entity = malloc(sizeof(*entity));
 	return entity;
 }
 
-void entity_init(t_entity* entity)
+void entity_init(t_entity *entity)
 {
-	entity->ref.unitI = (vector2D) {1, 0};
-	entity->ref.unitJ = (vector2D) {0, 1};
-	entity->ref.origin = (vector2D) {300, 300};
+	entity->ref.unitI = (vector2D){1.f, 0.f};
+	entity->ref.unitJ = (vector2D){0.f, 1.f};
+	entity->ref.origin = (vector2D){300, 300};
 
-	entity->speed = nullVector();
-	entity->acceleration = nullVector();
+	entity->velocity = nullVector();
+	//entity->acceleration = nullVector();
 }
 
-void axisAlignedRectangle_render(SDL_Renderer* renderer, axisAlignedRectangle rectangle)
+convexPolygon* entity_get_convexPolygons(void* collision, E_COLLISION_TYPE collisionType)
 {
-	SDL_SetRenderDrawColor(renderer, 255, 0, 0 ,255);
-
-	point2D points[4];
-	points[0] = (point2D) {rectangle.halfSize.x, rectangle.halfSize.y};
-	points[1] = (point2D) {rectangle.halfSize.x, -rectangle.halfSize.y};
-	points[2] = (point2D) {-rectangle.halfSize.x, -rectangle.halfSize.y};
-	points[3] = (point2D) {-rectangle.halfSize.x, rectangle.halfSize.y};
-
-	for (int i = 0; i < 4; i++)
-		points[i] = addVectors(points[i], rectangle.center);
-
-	for (unsigned i = 0; i < 4; i++)
-	{
-		unsigned int j = (i + 1) % 4;
-
-		point2D a = points[i];
-		point2D b = points[j];
-
-		SDL_RenderDrawLine(renderer, a.x, a.y, b.x, b.y);
-	}
+	// switch (collisionType)
+	// {
+	// 	case E_PLAYER :
+	// 		return player_get_convexPolygons(collision);
+	// 		break;
+	// 	case E_FLOATING_MINE :
+	// 		return floatingMine_get_convexPolygons(collision);
+	// 		break;
+	// 	default :
+	// 		break;
+	// }
+	//assert();
+	return NULL;
 }
 
-void collisions_render(SDL_Renderer* renderer, convexPolygon polygon, referential* ref)
-{
-	SDL_SetRenderDrawColor(renderer, 255, 255, 0 ,255);
-
-	for (unsigned i = 0; i < polygon.size; i++)
-	{
-		unsigned int j = (i + 1) % polygon.size;
-
-		point2D a = localToWorld_point2D(polygon.points[i], *ref);
-		point2D b = localToWorld_point2D(polygon.points[j], *ref);
-
-		SDL_RenderDrawLine(renderer, a.x, a.y, b.x, b.y);
-	}
-}
-
-void entity_render(t_entity* entity, t_render* render)
+void entity_render(t_entity *entity, t_render *render)
 {
 	entity->texture = render_get(render, 0);
-	
+
 	//SDL_Rect rect = {entity->ref.origin.x, entity->ref.origin.y,50,100};
 	//SDL_Rect src = {0,100,50,100};
 
@@ -84,30 +63,109 @@ float airFriction(float value, float friction)
 		{
 			value = 0.0;
 		}
-		
 	}
 
 	return value;
 }
 
-void entity_tick(t_entity* entity)
+void entity_border_teleportation(t_entity* entity)
 {
-	vector2D *speed = &entity->speed, 
-		*acceleration = &entity->acceleration,
-		*location = &entity->ref.origin;
+	vector2D *location = &entity->ref.origin;
 
-	float totalSpeed = vectorLength(*speed);
+	//teleport if is out of border
+	if (location->x < 0.0)
+		location->x = WINDOW_SIZE_X;
+
+	if (location->x > WINDOW_SIZE_X)
+		location->x = 0.0;
+
+	if (location->y < 0.0)
+		location->y = WINDOW_SIZE_Y;
+
+	if (location->y > WINDOW_SIZE_Y)
+		location->y = 0.0;
+}
+
+void entity_tick(t_entity *entity, float deltaTime)
+{
+	vector2D *velocity = &entity->velocity,
+			 *location = &entity->ref.origin;
+
+	//air friction
+	float totalSpeed = vectorLength(*velocity);
 	if (totalSpeed > 0)
 	{
 		if (totalSpeed < AIR_FRICTION)
-			*speed = nullVector();
+			*velocity = nullVector();
 		else
- 	   		*speed = scaleVector(unitVector(*speed), totalSpeed - AIR_FRICTION);
+			*velocity = scaleVector(unitVector(*velocity), totalSpeed - AIR_FRICTION);
 	}
 
-	speed->x += acceleration->x;
-	speed->y += acceleration->y;
+	//add speed to loc
+	location->x += velocity->x;
+	location->y += velocity->y;
 
-	location->x += speed->x;
-	location->y += speed->y;
+	entity_border_teleportation(entity);
+
+	//straighten velocity
+	float velocityMagnitude = vectorLength(*velocity);
+	if (velocityMagnitude != 0.f)
+	{
+		*velocity = worldToLocal_vector2D(*velocity, entity->ref);
+		velocity->x += 1 * deltaTime;
+		*velocity = scaleVector(unitVector(*velocity), velocityMagnitude);
+		*velocity = localToWorld_vector2D(*velocity, entity->ref);
+	}
+}
+
+void entity_move(t_entity* entity, E_MOVE move, float deltaTick)
+{
+	vector2D acc; //acceleration
+	decimal angle;
+
+	vector2D *velocity = &entity->velocity;
+
+	switch (move)
+	{
+		case E_LEFT:
+			entity->ref.unitI = rotateVector(entity->ref.unitI, - ANGULAR_SPEED * deltaTick);
+			entity->ref.unitI = unitVector(entity->ref.unitI);
+			entity->ref.unitJ = rotateVector90(entity->ref.unitI);
+			break;
+
+		case E_RIGHT:
+			entity->ref.unitI = rotateVector(entity->ref.unitI, ANGULAR_SPEED * deltaTick);
+			entity->ref.unitI = unitVector(entity->ref.unitI);
+			entity->ref.unitJ = rotateVector90(entity->ref.unitI);
+			break;
+
+		case E_FORWARD:
+			acc.x = 0;
+			acc.y = ACCELERATION * deltaTick;
+			angle = -vectorAngle(entity->ref.unitI);
+			acc = rotateVector(acc, angle);
+
+			*velocity = addVectors(*velocity, acc);
+
+			float totalSpeed = vectorLength(*velocity);
+
+			if (totalSpeed > SPEED_LIMIT)
+			{
+				*velocity = scaleVector(unitVector(*velocity), SPEED_LIMIT);
+			}
+			break;
+	}
+}
+
+void entity_teleport(t_entity* entity)
+{
+	vector2D* loc = &entity->ref.origin;
+	vector2D* velocity = &entity->velocity;
+	float rx = rand() % WINDOW_SIZE_X;    
+	float ry = rand() % WINDOW_SIZE_Y;  
+
+	loc->x = rx;
+	loc->y = ry;
+	velocity->x = 0.f;
+	velocity->y = 0.f;
 }

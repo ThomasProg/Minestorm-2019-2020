@@ -29,6 +29,7 @@ bool segment_segment_collision(segment segment1, segment segment2);
 bool segment_circle_collision(segment segment, circle circle);
 
 bool circle_circle_collision(circle a, circle b);
+bool circle_convexPolygon_collision(circle circle1, convexPolygon convexPolygon1);
 
 bool axisAlignedRectangle_axisAlignedRectangle_collision(axisAlignedRectangle a, axisAlignedRectangle b);
 

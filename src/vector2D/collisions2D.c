@@ -312,15 +312,49 @@ bool axisAlignedRectangle_axisAlignedRectangle_collision(axisAlignedRectangle a,
 range projectPolygon(convexPolygon* convexPolygon1, vector2D* axis)
 {
 	range returned;
-	returned.min = convexPolygon1->points[0];
+	decimal dotProd;
+	returned.min = dotProduct(convexPolygon1->points[0], *axis);
 	returned.max = returned.min;
 
 	for (unsigned i = 0; i < convexPolygon1->size; i++)
 	{
-		decimal dotProd = dotProduct(convexPolygon1->points[i], axis);
+		dotProd = dotProduct(convexPolygon1->points[i], *axis);
 		returned = rangeAddScalar(returned, dotProd);
 	}
 	return returned;
+}
+
+range projectCircle(circle* circle1, vector2D* axis)
+{
+	range returned;
+	returned.min = dotProduct(circle1->center, *axis);
+	returned.max = returned.min + circle1->length;
+	returned.min -= circle1->length;
+
+	return returned;
+}
+
+//SAT algorithm
+bool circle_convexPolygon_collision(circle circle1, convexPolygon convexPolygon1)
+{
+	vector2D normal;
+	range range1, range2;
+
+	for (unsigned int i = 0; i < convexPolygon1.size; i++)
+	{
+		normal = normalVector(substractVectors(
+			convexPolygon1.points[i], convexPolygon1.points[(i + 1) % convexPolygon1.size]));
+
+		range1 = projectPolygon(&convexPolygon1, &normal);
+		range2 = projectCircle(&circle1, &normal);
+
+		if (!rangeIntersect(range1, range2))
+		{
+			return false;
+		}
+	}
+
+	return true;
 }
 
 //SAT algorithm
@@ -331,10 +365,11 @@ bool convexPolygon_convexPolygon_collision(convexPolygon convexPolygon1, convexP
 
 	for (unsigned int i = 0; i < convexPolygon1.size; i++)
 	{
-		normal = normalVector(substractVectors(convexPolygon1.points[i], convexPolygon1.points[((i + 1) % convexPolygon1.size]));
+		normal = normalVector(substractVectors(
+			convexPolygon1.points[i], convexPolygon1.points[(i + 1) % convexPolygon1.size]));
 
-		range1 = projectPolygon(convexPolygon1, &normal);
-		range2 = projectPolygon(convexPolygon2, &normal);
+		range1 = projectPolygon(&convexPolygon1, &normal);
+		range2 = projectPolygon(&convexPolygon2, &normal);
 
 		if (!rangeIntersect(range1, range2))
 		{
@@ -344,10 +379,11 @@ bool convexPolygon_convexPolygon_collision(convexPolygon convexPolygon1, convexP
 
 	for (unsigned int i = 0; i < convexPolygon2.size; i++)
 	{
-		normal = normalVector(substractVectors(convexPolygon2.points[i], convexPolygon2.points[((i + 1) % convexPolygon1.size]));
+		normal = normalVector(substractVectors(
+			convexPolygon2.points[i], convexPolygon2.points[(i + 1) % convexPolygon1.size]));
 
-		range1 = projectPolygon(convexPolygon1, &normal);
-		range2 = projectPolygon(convexPolygon2, &normal);
+		range1 = projectPolygon(&convexPolygon1, &normal);
+		range2 = projectPolygon(&convexPolygon2, &normal);
 
 		if (!rangeIntersect(range1, range2))
 		{

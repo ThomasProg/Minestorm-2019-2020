@@ -16,8 +16,7 @@ point2D worldToLocal_point2D(point2D point1, referential ref)
 //return point2D relative to world origin
 point2D localToWorld_point2D(point2D point1, referential ref)
 {
-    point2D newPoint = point1;
-    newPoint = addVectors(scaleVector(ref.unitI, newPoint.x), scaleVector(ref.unitJ, newPoint.y));
+    point2D newPoint = addVectors(scaleVector(ref.unitI, point1.x), scaleVector(ref.unitJ, point1.y));
     newPoint = addVectors(newPoint, ref.origin);
     return newPoint;
 }

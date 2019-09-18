@@ -19,7 +19,7 @@ void render_add(t_render* render, const char* filename)
 	{
 		queue_add(render->textures);
 		SDL_Texture** elems = render->textures->data;
-		elems[render->textures->nextIndex] = SDL_CreateTextureFromSurface(			render->renderer, surface);
+		elems[render->textures->nextIndex] = SDL_CreateTextureFromSurface(render->renderer, surface);
 		render->textures->nextIndex++;
 
 	}

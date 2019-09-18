@@ -1,0 +1,11 @@
+{
+    "files.associations": {
+        "floating_mine.h": "c",
+        "array": "c",
+        "bitset": "c",
+        "initializer_list": "c",
+        "utility": "c",
+        "magnetic_mine.h": "c",
+        "fireball_mine.h": "c"
+    }
+}

@@ -1,23 +1,27 @@
 #include <time.h>
 
 #include "player.h"
+#include "bullets.h"
 #include "macros.h"
 
-void player_collision_init(playerCollision* collision)
+void player_collision_init(convexPolygonsArray* collision)
 {
+	collision->numberOfPolygons = 2;
+	collision->polygons = malloc(collision->numberOfPolygons * sizeof(convexPolygon));
+
 	vector2D* points = malloc(3 * sizeof(point2D));
 	points[0] = (point2D) {0.0, 0.0};
 	points[1] = (point2D) {-50.0, 50.0};
 	points[2] = (point2D) {100, 0.0};
-	collision->leftSide.points = points;
-	collision->leftSide.size = 3;
+	collision->polygons[0].size = 3;	
+	collision->polygons[0].points = points;	
 
 	points = malloc(3 * sizeof(point2D));
 	points[0] = (point2D) {0.0, 0.0};
 	points[1] = (point2D) {-50.0, -50.0};
 	points[2] = (point2D) {100.0, 0.0};
-	collision->rightSide.points = points;
-	collision->rightSide.size = 3;
+	collision->polygons[1].size = 3;	
+	collision->polygons[1].points = points;	
 }
 
 inputs input_create()
@@ -36,11 +40,13 @@ t_player* player_create()
 
     entity_init(&player->entity);
 
-    player->entity.collision = malloc(sizeof(playerCollision));
+    player->entity.collision = malloc(sizeof(convexPolygonsArray));
     player_collision_init(player->entity.collision);
+	player->entity.collisionType = E_PLAYER;
 
 	player->life = 0;
 	player->score = 0;
+	player->bullet = false;
 
 	player->inputs = input_create();
 
@@ -50,71 +56,40 @@ t_player* player_create()
 void player_render(t_player* player, t_render* render)
 {
     entity_render(&player->entity, render);
-
-    playerCollision* collision = player->entity.collision;
-    collisions_render(render->renderer, collision->leftSide, &player->entity.ref);
-	collisions_render(render->renderer, collision->rightSide, &player->entity.ref);
+    convexPolygonsArray_render(render->renderer, player->entity.collision, &player->entity.ref);
     
     //player->entity.aabb = aabbRectangleGenerate(collision->leftSide.points, 4);
-    axisAlignedRectangle rec = aabbRectangleGenerate(collision->leftSide.points, 4);
-    rec.center = addVectors(rec.center, player->entity.ref.origin); 
-    axisAlignedRectangle_render(render->renderer, player->entity.aabb);
+    // axisAlignedRectangle rec = aabbRectangleGenerate(collision->leftSide.points, 4);
+    // rec.center = addVectors(rec.center, player->entity.ref.origin); 
+    // axisAlignedRectangle_render(render->renderer, player->entity.aabb);
 }
 
-void player_tick(t_player* player)
+void player_tick(t_player* player, float deltaTime)
 {
-    player_inputs_run(player);
-    entity_tick(&player->entity);
+    player_inputs_run(player, deltaTime);
+    entity_tick(&player->entity, deltaTime);
 }
 
-void player_inputs_run(t_player* player)
+void player_inputs_run(t_player* player, float deltaTime)
 {
-	vector2D *speed = &player->entity.speed;
-
-	vector2D newSpeed;
-	decimal angle;
-
 	if (player->inputs.isForward)
 	{
-		newSpeed.x = 0;
-		newSpeed.y = SPEED;
-		angle = - vectorAngle(player->entity.ref.unitI);
-		newSpeed = rotateVector(newSpeed, angle);
-
-		*speed = addVectors(*speed, newSpeed);
-
-        float totalSpeed = vectorLength(*speed);
-
-        if (totalSpeed > SPEED_LIMIT)
-        {
-            *speed = scaleVector(unitVector(*speed), SPEED_LIMIT);
-        }
-
+		entity_move(&player->entity, E_FORWARD, deltaTime);
 	}
 
 	if (player->inputs.isLeft)
 	{
-		player->entity.ref.unitI = rotateVector(player->entity.ref.unitI, - ROTATION);
-		player->entity.ref.unitJ = rotateVector90(player->entity.ref.unitI);
+		entity_move(&player->entity, E_LEFT, deltaTime);
 	}
 
 	if (player->inputs.isRight)
 	{
-		player->entity.ref.unitI = rotateVector(player->entity.ref.unitI, ROTATION);
-		player->entity.ref.unitJ = rotateVector90(player->entity.ref.unitI);
+		entity_move(&player->entity, E_RIGHT, deltaTime);
 	}
 }
 
-int random_id_generator = 0;
-
 void player_input_start(t_player* player, int key, bool start)
 {
-	vector2D* loc = &player->entity.ref.origin;
-	srand(time(NULL) + random_id_generator);   // Initialization, should only be called once.
-    random_id_generator++;
-	float rx = rand() % WINDOW_SIZE_X;    
-	float ry = rand() % WINDOW_SIZE_Y;     
-
 	switch (key)
 	{
 		case SDLK_r :
@@ -129,10 +104,26 @@ void player_input_start(t_player* player, int key, bool start)
 			break;
 		
 		case SDLK_e :
-			loc->x = rx;
-			loc->y = ry;
+			entity_teleport(&player->entity);
+			break;
+
 		case SDLK_t :
-			loc->x = rx;
-			loc->y = ry;
+			entity_teleport(&player->entity);
+			break;
+
+		case SDLK_f :
+			player->bullet = true;
+			break;
+	}
+}
+
+void player_event(t_player* player, t_bullet** bullets)
+{
+	if (player->bullet)
+	{
+		vector2D bulletLocation = player->entity.ref.origin;
+		bulletLocation = addVectors(bulletLocation, scaleVector(player->entity.ref.unitI, 100.0));
+		bullets[0] = bullet_create(bulletLocation, player->entity.ref.unitI);
+		player->bullet = false;
 	}
 }
