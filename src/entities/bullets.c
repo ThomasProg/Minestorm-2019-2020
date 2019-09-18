@@ -20,6 +20,11 @@ void bullet_init(t_bullet* bullet, vector2D location, vector2D relativeVelocity,
     bullet->velocity = addVectors(scaleVector(shootDirection, 600), relativeVelocity); //add velocity at shooting
 }
 
+void bullet_destroy(t_bullet* bullet)
+{
+	free(bullet);
+}
+
 void bullet_render(SDL_Renderer* renderer, t_bullet* bullet, unsigned int nbLines)
 {
     if (! bullet->isAlive)

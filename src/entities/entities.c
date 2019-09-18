@@ -22,6 +22,17 @@ void entity_init(t_entity* entity)
 	//entity->acceleration = nullVector();
 }
 
+void entity_destroy(t_entity* entity)
+{
+	//cast : WARNING
+	convexPolygonsArray* a = entity->collision;
+	free(a->polygons);
+	free(a);
+
+	if (entity->texute != NULL)
+		free(entity->texture);
+}
+
 convexPolygon* entity_get_convexPolygons(void* collision, E_COLLISION_TYPE collisionType)
 {
 	// switch (collisionType)

@@ -94,6 +94,16 @@ t_player* player_create()
 	return player;
 }
 
+void player_destroy(t_player* player)
+{
+	for (unsigned int i = 0; i < player->nbBullets; i++)
+		bullet_destroy(player->bullets[i]);
+
+	free(player->bullets);
+
+	free(player);
+}
+
 void player_render(t_player* player, t_render* render)
 {
     entity_render(&player->entity, render);

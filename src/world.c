@@ -94,8 +94,8 @@ void world_loop(t_assets* assets, float deltaTime, game* game)
 	for (unsigned int i = 0; i < world->nbfloatingMines; i++)
 		floatingMine_render(world->floatingMines[i], assets->render);
 
-	player_render(world->players[0], assets->render);
-	player_render(world->players[1], assets->render);
+	for (unsigned int i = 0; i < 2; i++)
+		player_render(world->players[i], assets->render);
 }
 
 void world_destroy(t_world* world)
