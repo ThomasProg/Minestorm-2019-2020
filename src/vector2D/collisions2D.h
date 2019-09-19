@@ -34,3 +34,6 @@ bool circle_convexPolygon_collision(circle circle1, convexPolygon convexPolygon1
 bool axisAlignedRectangle_axisAlignedRectangle_collision(axisAlignedRectangle a, axisAlignedRectangle b);
 
 bool convexPolygon_convexPolygon_collision(convexPolygon convexPolygon1, convexPolygon convexPolygon2);
+
+bool circle_polgyon_collision(circle* circle1, polygon* polygon1);
+bool polygon_polgyon_collision(polygon* poly1, polygon* poly2);

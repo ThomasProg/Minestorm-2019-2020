@@ -10,8 +10,8 @@
 
 // } t_mines;
 
-void mine_collisionBox_init(convexPolygonsArray* collision, 
+void mine_collisionBox_init(polygon* collision, 
     unsigned int nbPolygons, float size1, float size2);
 
-void* mine_spawn(vector2D* spawners, unsigned int nbSpawners, int type);
+void mine_spawn(void* mine, unsigned int type, vector2D* spawners, unsigned int nbSpawners);
 #endif

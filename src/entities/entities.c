@@ -25,11 +25,11 @@ void entity_init(t_entity* entity)
 void entity_destroy(t_entity* entity)
 {
 	//cast : WARNING
-	convexPolygonsArray* a = entity->collision;
-	free(a->polygons);
+	polygon* a = entity->collision;
+	free(a->convexPolygons);
 	free(a);
 
-	if (entity->texute != NULL)
+	if (entity->texture != NULL)
 		free(entity->texture);
 }
 
@@ -52,7 +52,10 @@ convexPolygon* entity_get_convexPolygons(void* collision, E_COLLISION_TYPE colli
 
 void entity_render(t_entity* entity, t_render* render)
 {
-	entity->texture = render_get(render, 0);
+	polygon* poly = entity->collision;
+	entity->worldCollider = localToWorld_polygon(poly, entity->ref);
+
+	//entity->texture = render_get(render, 0);
 
 	//SDL_Rect rect = {entity->ref.origin.x, entity->ref.origin.y,50,100};
 	//SDL_Rect src = {0,100,50,100};
@@ -101,12 +104,12 @@ void entity_tick(t_entity* entity, float deltaTime)
 
 	border_teleportation(&entity->ref.origin);
 
-	// //straighten velocity
+	//straighten velocity
 	float velocityMagnitude = vectorLength(*velocity);
 	if (velocityMagnitude != 0.f)
 	{
 		*velocity = worldToLocal_vector2D(*velocity, entity->ref);
-		velocity->x += 1 * deltaTime;
+		velocity->x += DRIFT_LEVEL * deltaTime;
 		if (vectorLength(*velocity) != 0.f)
 			*velocity = scaleVector(unitVector(*velocity), velocityMagnitude);
 		*velocity = localToWorld_vector2D(*velocity, entity->ref);

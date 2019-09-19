@@ -7,7 +7,10 @@
 
 //Entities Physics
 #define AIR_FRICTION 600.f
-#define SPEED_LIMIT 700.f
+#define SPEED_LIMIT 500.f
+//a high value means less drift power
+//0 = no drift
+#define DRIFT_LEVEL 2.f 
 
 //Player Physics
 #define ANGULAR_SPEED 4.f

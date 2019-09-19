@@ -10,7 +10,8 @@ typedef struct s_floatingMine
 
 } t_floatingMine;
 
-t_floatingMine* floatingMine_create();
+t_floatingMine* floatingMine_create(); //unused
+void floatingMine_init(t_floatingMine* floatingMine);
 
 void floatingMine_render(t_floatingMine* floatingMine, t_render* render);
 

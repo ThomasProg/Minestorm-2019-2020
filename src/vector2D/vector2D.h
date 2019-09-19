@@ -49,6 +49,12 @@ typedef struct
 
 typedef struct 
 {
+	convexPolygon* convexPolygons;
+	unsigned int nbConvexPolygons;
+} polygon;
+
+typedef struct 
+{
 	point2D a, b, c;
 } triangle;
 

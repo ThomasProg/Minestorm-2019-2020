@@ -7,31 +7,31 @@
 #include "bullets.h"
 #include "macros.h"
 
-void player_collision_init(convexPolygonsArray* collision)
+void player_collision_init(polygon* collision)
 {
-	collision->numberOfPolygons = 2;
-	collision->polygons = malloc(collision->numberOfPolygons * sizeof(convexPolygon));
+	collision->nbConvexPolygons = 2;
+	collision->convexPolygons = malloc(collision->nbConvexPolygons * sizeof(convexPolygon));
 
 	vector2D* points = malloc(3 * sizeof(point2D));
 	points[0] = (point2D) {0.0, 0.0};
 	points[1] = (point2D) {-50.0, 50.0};
 	points[2] = (point2D) {100, 0.0};
-	collision->polygons[0].size = 3;	
-	collision->polygons[0].points = points;	
+	collision->convexPolygons[0].size = 3;	
+	collision->convexPolygons[0].points = points;	
 
 	points = malloc(3 * sizeof(point2D));
 	points[0] = (point2D) {0.0, 0.0};
 	points[1] = (point2D) {-50.0, -50.0};
 	points[2] = (point2D) {100.0, 0.0};
-	collision->polygons[1].size = 3;	
-	collision->polygons[1].points = points;	
+	collision->convexPolygons[1].size = 3;	
+	collision->convexPolygons[1].points = points;	
 
 	//scale convexPolygonsArray
-	for (unsigned int i = 0; i < collision->numberOfPolygons; i++)
+	for (unsigned int i = 0; i < collision->nbConvexPolygons; i++)
 	{	
-		for (unsigned int j = 0; j < collision->polygons[i].size; j++)
+		for (unsigned int j = 0; j < collision->convexPolygons[i].size; j++)
 		{
-			collision->polygons[i].points[j] = scaleVector(collision->polygons[i].points[j], SHIP_SIZE);
+			collision->convexPolygons[i].points[j] = scaleVector(collision->convexPolygons[i].points[j], SHIP_SIZE);
 		}
 	}
 }
@@ -79,7 +79,7 @@ t_player* player_create()
 
     entity_init(&player->entity);
 
-    player->entity.collision = malloc(sizeof(convexPolygonsArray));
+    player->entity.collision = malloc(sizeof(polygon));
     player_collision_init(player->entity.collision);
 	player->entity.collisionType = E_PLAYER;
 
@@ -107,7 +107,7 @@ void player_destroy(t_player* player)
 void player_render(t_player* player, t_render* render)
 {
     entity_render(&player->entity, render);
-    convexPolygonsArray_render(render->renderer, player->entity.collision, &player->entity.ref);
+    polygon_render(render->renderer, &player->entity.worldCollider, &player->entity.ref);
 
 	for (unsigned int i = 0; i < player->nbBullets; i++)
 	{

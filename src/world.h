@@ -2,6 +2,8 @@
 #define _WORLD_H_
 
 #include "SDL_utilities/SDL_utilities.h"
+#include "dynamicArray/dynamicArray.h"
+
 #include "entities/mines_subtype/floating_mine.h"
 #include "entities/mines_subtype/magnetic_mine.h"
 #include "entities/mines_subtype/fireball_mine.h"
@@ -18,10 +20,14 @@ typedef struct
     vector2D* spawners;
     unsigned int nbSpawners;
 
-    t_fireballMine** fireballsMines;
-    t_floatingMine** floatingMines;
-    unsigned int nbfloatingMines;
-    t_magneticMine** magneticMines;
+    
+    //t_fireballMine** fireballsMines;
+    t_dynamicArray floatingMines;
+    t_dynamicArray magneticMines;
+    t_dynamicArray fireballMines;
+    //t_floatingMine** floatingMines;
+    //unsigned int nbfloatingMines;
+    //t_magneticMine** magneticMines;
 
 } t_world;
 

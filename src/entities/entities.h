@@ -31,6 +31,7 @@ typedef struct s_entity
 
 	axisAlignedRectangle aabb;
 	void* collision;
+	polygon worldCollider;
 	E_COLLISION_TYPE collisionType;
 	
 	SDL_Texture* texture;

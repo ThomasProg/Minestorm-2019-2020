@@ -31,22 +31,26 @@ void bullet_render(SDL_Renderer* renderer, t_bullet* bullet, unsigned int nbLine
         return;
 
     vector2D origin = bullet->collision.center;
-    float l = bullet->collision.length;
+    float radius = bullet->collision.length;//radius
     float toAdd = 2 * PI / nbLines;
     float loc = 0.f;
     for (unsigned int i = 0; i < nbLines; i++)
     {  
-        SDL_RenderDrawLine(renderer, origin.x + l * cosf(loc + toAdd), origin.y + l * sinf(loc + toAdd), origin.x + l * cosf(loc), origin.y + l * sinf(loc));
+        SDL_RenderDrawLine(renderer, origin.x + radius * cosf(loc + toAdd), origin.y + radius * sinf(loc + toAdd), 
+            origin.x + radius * cosf(loc), origin.y + radius * sinf(loc));
         loc += toAdd;
     }
 }
 
 void bullet_tick(t_bullet* bullet, float deltaTime)
 {
-    bullet->timeAlive += deltaTime;
-    bullet->collision.center = addVectors(bullet->collision.center, scaleVector(bullet->velocity, deltaTime));
-    border_teleportation(&bullet->collision.center);
+    if (bullet->isAlive)
+    {
+        bullet->timeAlive += deltaTime;
+        bullet->collision.center = addVectors(bullet->collision.center, scaleVector(bullet->velocity, deltaTime));
+        border_teleportation(&bullet->collision.center);
 
-    if (bullet->timeAlive > BULLETS_TIME_ALIVE)
-        bullet->isAlive = false;
+        if (bullet->timeAlive > BULLETS_TIME_ALIVE)
+            bullet->isAlive = false;
+    }
 }

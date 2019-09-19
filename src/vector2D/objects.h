@@ -25,4 +25,8 @@ point2D localToWorld_point2D(point2D point1, referential ref);
 vector2D worldToLocal_vector2D(vector2D vector1, referential ref);
 vector2D localToWorld_vector2D(vector2D vector1, referential ref);
 
+
+convexPolygon localToWorld_convexPolygon(convexPolygon* convexPolygon1, referential ref);
+polygon localToWorld_polygon(polygon* polygon1, referential ref);
+
 #endif

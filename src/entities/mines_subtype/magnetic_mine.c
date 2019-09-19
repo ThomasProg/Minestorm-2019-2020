@@ -12,7 +12,7 @@ t_magneticMine* magneticMine_create()
 
     magneticMine->entity.ref.origin = (vector2D) {100.f, 100.f};
 
-    magneticMine->entity.collision = malloc(sizeof(convexPolygonsArray));
+    magneticMine->entity.collision = malloc(sizeof(polygon));
     mine_collisionBox_init(magneticMine->entity.collision, 4, 25, 100);
 
 	magneticMine->entity.collisionType = E_MAGNETIC_MINE;
@@ -24,7 +24,7 @@ t_magneticMine* magneticMine_create()
 void magneticMine_render(t_magneticMine* magneticMine, t_render* render)
 {
     entity_render(&magneticMine->entity, render);
-    convexPolygonsArray_render(render->renderer, magneticMine->entity.collision, &magneticMine->entity.ref);
+    polygon_render(render->renderer, &magneticMine->entity.worldCollider, &magneticMine->entity.ref);
     
     //player->entity.aabb = aabbRectangleGenerate(collision->leftSide.points, 4);
     // axisAlignedRectangle rec = aabbRectangleGenerate(collision->leftSide.points, 4);

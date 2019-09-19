@@ -357,12 +357,12 @@ bool circle_convexPolygon_collision(circle circle1, convexPolygon convexPolygon1
 	return true;
 }
 
-//SAT algorithm
-bool convexPolygon_convexPolygon_collision(convexPolygon convexPolygon1, convexPolygon convexPolygon2)
+bool convexPolygon_convexPolygon_SAT(convexPolygon convexPolygon1, convexPolygon convexPolygon2)
 {
 	vector2D normal;
 	range range1, range2;
 
+	//for each segment of the 1st polygon
 	for (unsigned int i = 0; i < convexPolygon1.size; i++)
 	{
 		normal = normalVector(substractVectors(
@@ -377,19 +377,48 @@ bool convexPolygon_convexPolygon_collision(convexPolygon convexPolygon1, convexP
 		}
 	}
 
-	for (unsigned int i = 0; i < convexPolygon2.size; i++)
+	return true;
+}
+
+//SAT algorithm
+bool convexPolygon_convexPolygon_collision(convexPolygon convexPolygon1, convexPolygon convexPolygon2)
+{
+	return (convexPolygon_convexPolygon_SAT(convexPolygon1, convexPolygon2)
+		&& convexPolygon_convexPolygon_SAT(convexPolygon2, convexPolygon1));
+}
+
+bool circle_polgyon_collision(circle* circle1, polygon* polygon1)
+{
+	unsigned int i = 0;
+	while (i < polygon1->nbConvexPolygons)
 	{
-		normal = normalVector(substractVectors(
-			convexPolygon2.points[i], convexPolygon2.points[(i + 1) % convexPolygon1.size]));
-
-		range1 = projectPolygon(&convexPolygon1, &normal);
-		range2 = projectPolygon(&convexPolygon2, &normal);
-
-		if (!rangeIntersect(range1, range2))
+		if (circle_convexPolygon_collision(*circle1, polygon1->convexPolygons[i]))
 		{
-			return false;
+			return true;
 		}
+		i++;
 	}
 
-	return true;
+	return false;
+}
+
+bool polygon_polgyon_collision(polygon* poly1, polygon* poly2)
+{
+	unsigned int i = 0;
+	unsigned int j = 0;
+	//opti ?
+	while (i < poly1->nbConvexPolygons)
+	{
+		while (j < poly2->nbConvexPolygons)
+		{
+			if (convexPolygon_convexPolygon_collision(poly1->convexPolygons[i], poly2->convexPolygons[j]))
+			{
+				return true;
+			}
+			j++;
+		}
+		i++;
+	}
+
+	return false;
 }

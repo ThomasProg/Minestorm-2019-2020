@@ -37,8 +37,11 @@ t_player** players_generate()
 t_world* world_create()
 {
     t_world* world = malloc(sizeof(t_world));
-	world->nbfloatingMines = 0;
-	world->floatingMines = malloc(50 * sizeof(t_floatingMine*));
+	dynamicArray_Init(&world->floatingMines, sizeof(t_floatingMine));
+	//dynamicArray_Init(&world->magneticMines, sizeof(t_magneticMine));
+	//dynamicArray_Init(&world->fireballMines, sizeof(t_fireballMine));
+	//world->nbfloatingMines = 0;
+	//world->floatingMines = malloc(50 * sizeof(t_floatingMine*));
     //entitiesList_init(world->entities);
     world->players = players_generate();
 	point2D* spawners_generate(unsigned int nb);
@@ -87,18 +90,62 @@ void world_loop(t_assets* assets, float deltaTime, game* game)
 	 if (world->nbSpawners > 0)
 	 {
 	 	world->nbSpawners--;
-	 	world->floatingMines[world->nbSpawners] = (t_floatingMine*) mine_spawn(world->spawners, world->nbSpawners, 0);
-	 	world->nbfloatingMines++;
+	 	//world->floatingMines[world->nbfloatingMines] = (t_floatingMine*) mine_spawn(world->spawners, world->nbSpawners, 0);
+		t_floatingMine* mine = dynamicArray_AddItem(&world->floatingMines);
+		mine_spawn(mine, 0, world->spawners, world->nbSpawners);
+		//world->nbfloatingMines++;
 	 }
-	assert(true); //SEARCH AROUND HERE THE SEG FAULT; up or down
-	for (unsigned int i = 0; i < world->nbfloatingMines; i++)
-		floatingMine_render(world->floatingMines[i], assets->render);
+
+	for (unsigned int i = 0; dynamicArray_ForEachUsed(&world->floatingMines, &i); i++)
+	{
+		t_floatingMine* floatingMine = dynamicArray_GetItem(&world->floatingMines, i);
+		floatingMine_render(floatingMine, assets->render);
+		floatingMine_tick(floatingMine, deltaTime);
+	}
+
 
 	for (unsigned int i = 0; i < 2; i++)
-		player_render(world->players[i], assets->render);
+	{
+		t_player* player = world->players[i];
+		player_render(player, assets->render);
+		
+		unsigned int j = 0;
+		while (dynamicArray_ForEachUsed(&world->floatingMines, &j))
+		{
+			t_entity* entity = &((t_floatingMine*) dynamicArray_GetItem(&world->floatingMines, j))->entity; //&world->floatingMines[j]->entity;
+			if (polygon_polgyon_collision(&player->entity.worldCollider, &entity->worldCollider))
+			{
+				fprintf(stderr, "OOH WILFRE!\n");
+			}
+			else
+			{
+				fprintf(stderr, "no collision !\n");
+			}
+
+			for (unsigned int k = 0; k < player->nbBullets; k++)
+			{
+				t_bullet* bullet = player->bullets[k];
+				if (bullet->isAlive)
+				{
+					if (circle_polgyon_collision(&player->bullets[k]->collision, &entity->worldCollider))
+					{
+						dynamicArray_RemoveItem(&world->floatingMines, j);
+						bullet->isAlive = false;
+					}
+				}
+			}
+			j++;
+		}
+
+	}
 }
 
 void world_destroy(t_world* world)
 {
+	dynamicArray_Destroy(&world->floatingMines);
+	dynamicArray_Destroy(&world->magneticMines);
+	dynamicArray_Destroy(&world->fireballMines);
+
     free(world);
 }
+

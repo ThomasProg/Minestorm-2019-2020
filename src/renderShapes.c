@@ -1,4 +1,5 @@
 #include "renderShapes.h"
+#include "vector2D/collisions2D.h"
 
 void convexPolygon_render(SDL_Renderer* renderer, convexPolygon polygon, referential* ref)
 {
@@ -8,18 +9,20 @@ void convexPolygon_render(SDL_Renderer* renderer, convexPolygon polygon, referen
 	{
 		unsigned int j = (i + 1) % polygon.size;
 
-		point2D a = localToWorld_point2D(polygon.points[i], *ref);
-		point2D b = localToWorld_point2D(polygon.points[j], *ref);
+		point2D a = polygon.points[i];
+		point2D b = polygon.points[j];
+		//point2D a = localToWorld_point2D(polygon.points[i], *ref);
+		//point2D b = localToWorld_point2D(polygon.points[j], *ref);
 
 		SDL_RenderDrawLine(renderer, a.x, a.y, b.x, b.y);
 	}
 }
 
-void convexPolygonsArray_render(SDL_Renderer* renderer, convexPolygonsArray* polygons, referential* ref)
+void polygon_render(SDL_Renderer* renderer, polygon* polygons, referential* ref)
 {
-    for (unsigned int i = 0; i < polygons->numberOfPolygons; i++)
+    for (unsigned int i = 0; i < polygons->nbConvexPolygons; i++)
     {
-        convexPolygon_render(renderer, polygons->polygons[i], ref);
+        convexPolygon_render(renderer, polygons->convexPolygons[i], ref);
     }
 }
 
@@ -46,5 +49,4 @@ void axisAlignedRectangle_render(SDL_Renderer* renderer, axisAlignedRectangle re
 		SDL_RenderDrawLine(renderer, a.x, a.y, b.x, b.y);
 	}
 }
-
 
