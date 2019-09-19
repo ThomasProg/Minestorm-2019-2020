@@ -26,6 +26,8 @@ typedef enum
 
 typedef struct s_entity
 {
+	float maxSpeed;
+
 	vector2D velocity;
 	referential ref;
 

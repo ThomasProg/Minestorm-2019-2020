@@ -3,20 +3,16 @@
 #include "fireball_mine.h"
 #include "macros.h"
 
-t_fireballMine* fireballMine_create()
+void fireballMine_init(t_fireballMine* fireballMine)
 {
-	t_fireballMine* fireballMine_create = malloc(sizeof(*fireballMine_create));
+    entity_init(&fireballMine->entity);
 
-    entity_init(&fireballMine_create->entity);
+    fireballMine->entity.ref.origin = (vector2D) {500.f, 100.f};
 
-    fireballMine_create->entity.ref.origin = (vector2D) {500.f, 100.f};
+    fireballMine->entity.collision = malloc(sizeof(polygon));
+    mine_collisionBox_init(fireballMine->entity.collision, 4, 50, 100);
 
-    fireballMine_create->entity.collision = malloc(sizeof(polygon));
-    mine_collisionBox_init(fireballMine_create->entity.collision, 4, 50, 100);
-
-	fireballMine_create->entity.collisionType = E_MAGNETIC_MINE;
-
-	return fireballMine_create;
+	fireballMine->entity.collisionType = E_MAGNETIC_MINE;
 }
 
 void fireballMine_render(t_fireballMine* fireballMine_create, t_render* render)

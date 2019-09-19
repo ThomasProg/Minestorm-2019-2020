@@ -48,22 +48,21 @@ void mine_spawn(void* mine, unsigned int type, vector2D* spawners, unsigned int 
     if (type == 0)
     {
         t_floatingMine* floatingMine = mine;
-        //floatingMine = floatingMine_create();
         floatingMine_init(floatingMine);
         floatingMine->entity.ref.origin = spawners[nbSpawners];
         return;
     }
     if (type == 1)
     {
-        t_magneticMine* magneticMine;
-        magneticMine = magneticMine_create();
+        t_magneticMine* magneticMine = mine;
+        magneticMine_init(magneticMine);
         magneticMine->entity.ref.origin = spawners[nbSpawners];
         return;
     }
     if (type == 2)
     {
-        t_fireballMine* fireballMine;
-        fireballMine = fireballMine_create();
+        t_fireballMine* fireballMine = mine;
+        fireballMine_init(fireballMine);
         fireballMine->entity.ref.origin = spawners[nbSpawners];
         return;
     }

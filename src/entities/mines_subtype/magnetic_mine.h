@@ -12,7 +12,7 @@ typedef struct s_magneticMine
 
 } t_magneticMine;
 
-t_magneticMine* magneticMine_create();
+void magneticMine_init(t_magneticMine* magneticMine);
 
 void magneticMine_render(t_magneticMine* magneticMine, t_render* render);
 

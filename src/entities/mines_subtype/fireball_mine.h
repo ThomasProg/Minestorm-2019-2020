@@ -9,7 +9,7 @@ typedef struct s_fireballMine
 
 } t_fireballMine;
 
-t_fireballMine* fireballMine_create();
+void fireballMine_init(t_fireballMine* fireballMine);
 
 void fireballMine_render(t_fireballMine* fireballMine, t_render* render);
 

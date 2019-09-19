@@ -3,21 +3,6 @@
 #include "floating_mine.h"
 #include "macros.h"
 
-//unused
-t_floatingMine* floatingMine_create()
-{
-	t_floatingMine* floatingMine = malloc(sizeof(*floatingMine));
-
-    entity_init(&floatingMine->entity);
-
-    floatingMine->entity.collision = malloc(sizeof(polygon));
-    mine_collisionBox_init(floatingMine->entity.collision, 3, 25, 100);
-
-	floatingMine->entity.collisionType = E_FLOATING_MINE;
-
-	return floatingMine;
-}
-
 void floatingMine_init(t_floatingMine* floatingMine)
 {
     entity_init(&floatingMine->entity);
@@ -44,5 +29,5 @@ void floatingMine_tick(t_floatingMine* floatingMine, float deltaTime)
     entity_tick(&floatingMine->entity, deltaTime);
     //floatingMine->entity.ref.unitI = (vector2D) {4.f, 3.f};
     //floatingMine->entity.ref.unitJ = rotateVector90(floatingMine->entity.ref.unitI);
-    floatingMine->entity.velocity = (vector2D) {100.1f, 30.3f};
+    floatingMine->entity.velocity = (vector2D) FLOATING_MINE_VELOCITY;
 }

@@ -18,6 +18,8 @@ void entity_init(t_entity* entity)
 	entity->ref.unitJ = (vector2D){0.f, 1.f};
 	entity->ref.origin = (vector2D){300, 300};
 
+	entity->maxSpeed = 500.f;
+
 	entity->velocity = nullVector();
 	//entity->acceleration = nullVector();
 }
@@ -33,37 +35,10 @@ void entity_destroy(t_entity* entity)
 		free(entity->texture);
 }
 
-convexPolygon* entity_get_convexPolygons(void* collision, E_COLLISION_TYPE collisionType)
-{
-	// switch (collisionType)
-	// {
-	// 	case E_PLAYER :
-	// 		return player_get_convexPolygons(collision);
-	// 		break;
-	// 	case E_FLOATING_MINE :
-	// 		return floatingMine_get_convexPolygons(collision);
-	// 		break;
-	// 	default :
-	// 		break;
-	// }
-	//assert();
-	return NULL;
-}
-
 void entity_render(t_entity* entity, t_render* render)
 {
 	polygon* poly = entity->collision;
 	entity->worldCollider = localToWorld_polygon(poly, entity->ref);
-
-	//entity->texture = render_get(render, 0);
-
-	//SDL_Rect rect = {entity->ref.origin.x, entity->ref.origin.y,50,100};
-	//SDL_Rect src = {0,100,50,100};
-
-	//SDL_RenderCopy(render->renderer, entity->texture, &src, &rect);
-
-	// collisions_render(render->renderer, entity->collision.leftSide, &entity->ref);
-	// collisions_render(render->renderer, entity->collision.rightSide, &entity->ref);
 }
 
 float airFriction(float value, float friction)
@@ -147,9 +122,9 @@ void entity_move(t_entity* entity, E_MOVE move, float deltaTick)
 
 			float totalSpeed = vectorLength(*velocity);
 
-			if (totalSpeed > SPEED_LIMIT)
+			if (totalSpeed > entity->maxSpeed)
 			{
-				*velocity = scaleVector(unitVector(*velocity), SPEED_LIMIT);
+				*velocity = scaleVector(unitVector(*velocity), entity->maxSpeed);
 			}
 			break;
 	}

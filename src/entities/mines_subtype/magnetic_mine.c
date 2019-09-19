@@ -4,11 +4,10 @@
 #include "magnetic_mine.h"
 #include "macros.h"
 
-t_magneticMine* magneticMine_create()
+void magneticMine_init(t_magneticMine* magneticMine)
 {
-	t_magneticMine* magneticMine = malloc(sizeof(*magneticMine));
-
     entity_init(&magneticMine->entity);
+    magneticMine->entity.maxSpeed = 200.f;
 
     magneticMine->entity.ref.origin = (vector2D) {100.f, 100.f};
 
@@ -17,8 +16,6 @@ t_magneticMine* magneticMine_create()
 
 	magneticMine->entity.collisionType = E_MAGNETIC_MINE;
     magneticMine->target = NULL;
-
-	return magneticMine;
 }
 
 void magneticMine_render(t_magneticMine* magneticMine, t_render* render)
@@ -62,8 +59,12 @@ void magneticMine_tick(t_magneticMine* magneticMine, float deltaTime)
 
         vector2D direction = nullVector();
         if (vectorLength(shortestPath) != 0.f)
+        {
             direction = unitVector(shortestPath);
-
-        magneticMine->entity.velocity = scaleVector(direction, MAGNETIC_MINE_SPEED);
+            magneticMine->entity.ref.unitI = direction;
+            magneticMine->entity.ref.unitJ = rotateVector90(magneticMine->entity.ref.unitI);
+            //magneticMine->entity.velocity = addVectors(magneticMine->entity.velocity, scaleVector(direction, MAGNETIC_MINE_SPEED));
+            entity_move(&magneticMine->entity, E_FORWARD, deltaTime);
+        }
     }
 }
