@@ -7,6 +7,9 @@
 #include "entities/mines_subtype/floating_mine.h"
 #include "entities/mines_subtype/magnetic_mine.h"
 #include "entities/mines_subtype/fireball_mine.h"
+
+#include "entities/mines.h"
+#include "entities/spawner.h"
 #include "entities/player.h"
 
 #include "game.h"
@@ -17,9 +20,8 @@ typedef struct
     t_dynamicArray players;
     t_dynamicArray spawners;
 
-    t_dynamicArray floatingMines;
-    t_dynamicArray magneticMines;
-    t_dynamicArray fireballMines;
+    t_dynamicArray mines;
+    t_dynamicArray bullets;
 
     bool isPaused;
 } t_world;

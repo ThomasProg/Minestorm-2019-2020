@@ -29,7 +29,7 @@ void magneticMine_render(t_magneticMine* magneticMine, t_render* render)
     // axisAlignedRectangle_render(render->renderer, floatingMine->entity.aabb);
 }
 
-vector2D getShortestPath(vector2D a, vector2D b)
+vector2D getShortestVector(vector2D a, vector2D b)
 {
     if (vectorLength(a) > vectorLength(b))
         return b;
@@ -52,10 +52,10 @@ void magneticMine_tick(t_magneticMine* magneticMine, float deltaTime)
         vector2D targetYM = addVectors(targetLoc, (vector2D) {0.f, - WINDOW_SIZE_Y});
         
         vector2D shortestPath = substractVectors(mineLoc, targetLoc);
-        shortestPath = getShortestPath(shortestPath, substractVectors(mineLoc, targetXP));
-        shortestPath = getShortestPath(shortestPath, substractVectors(mineLoc, targetXM));
-        shortestPath = getShortestPath(shortestPath, substractVectors(mineLoc, targetYP));
-        shortestPath = getShortestPath(shortestPath, substractVectors(mineLoc, targetYM));
+        shortestPath = getShortestVector(shortestPath, substractVectors(mineLoc, targetXP));
+        shortestPath = getShortestVector(shortestPath, substractVectors(mineLoc, targetXM));
+        shortestPath = getShortestVector(shortestPath, substractVectors(mineLoc, targetYP));
+        shortestPath = getShortestVector(shortestPath, substractVectors(mineLoc, targetYM));
 
         vector2D direction = nullVector();
         if (vectorLength(shortestPath) != 0.f)

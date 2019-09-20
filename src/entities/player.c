@@ -123,10 +123,10 @@ void player_render(t_player* player, t_render* render)
     entity_render(&player->entity, render);
     polygon_render(render->renderer, &player->entity.worldCollider, &player->entity.ref);
 
-	for (unsigned int i = 0; dynamicArray_GetValidItemIndex(&player->bullets, &i); i++)
-	{
-		bullet_render(render->renderer, dynamicArray_GetItem(&player->bullets, i), BULLETS_PRECISION);
-	}
+	// for (unsigned int i = 0; dynamicArray_GetValidItemIndex(&player->bullets, &i); i++)
+	// {
+	// 	bullet_render(render->renderer, dynamicArray_GetItem(&player->bullets, i), BULLETS_PRECISION);
+	// }
 
     //printf("x : %f y : %f\n", player->entity.ref.origin.x, player->entity.ref.origin.y);
 	//printf("x : %f y : %f\n", player->entity.velocity.x, player->entity.velocity.y);
@@ -143,18 +143,18 @@ void player_tick(t_player* player, float deltaTime)
 
     entity_tick(&player->entity, deltaTime);
 
-	t_bullet* bullet;
-	for (unsigned int i = 0; dynamicArray_GetValidItemIndex(&player->bullets, &i); i++)
-	{
-		bullet = dynamicArray_GetItem(&player->bullets, i);
+	// t_bullet* bullet;
+	// for (unsigned int i = 0; dynamicArray_GetValidItemIndex(&player->bullets, &i); i++)
+	// {
+	// 	bullet = dynamicArray_GetItem(&player->bullets, i);
 
-		bullet_tick(bullet, deltaTime);
-		if (bullet->timeAlive > BULLETS_TIME_ALIVE)
-		{
-			bullet_destroy(bullet);
-       		dynamicArray_RemoveItem(&player->bullets, i);
-		}
-	}
+	// 	bullet_tick(bullet, deltaTime);
+	// 	if (bullet->timeAlive > BULLETS_TIME_ALIVE)
+	// 	{
+	// 		bullet_destroy(bullet);
+    //    		dynamicArray_RemoveItem(&player->bullets, i);
+	// 	}
+	// }
 }
 
 void player_inputs_run(t_player* player, float deltaTime)
@@ -173,27 +173,11 @@ void player_inputs_run(t_player* player, float deltaTime)
 	{
 		entity_move(&player->entity, E_RIGHT, deltaTime);
 	}
-
-	if (player->bInputs.shoot)
-	{
-		vector2D bulletLocation = player->entity.ref.origin;
-		bulletLocation = addVectors(bulletLocation, scaleVector(player->entity.ref.unitI, 100.0 * SHIP_SIZE));
-
-		t_bullet* bullet = dynamicArray_AddItem(&player->bullets);
-
-		bullet_init(bullet, bulletLocation, player->entity.velocity, player->entity.ref.unitI);
-		player->bInputs.shoot = false;
-	}
 	
 	if (player->bInputs.teleport)
 	{
 		entity_teleport(&player->entity);
 	}
-
-	// if (player->bInputs.shoot)
-	// {
-	// 	entity_move(&player->entity, -1, deltaTime);
-	// }
 }
 
 void player_input_start(t_player* player, int key, bool start)
@@ -222,15 +206,3 @@ void player_input_start(t_player* player, int key, bool start)
 	}
 }
 
-void player_event(t_player* player, t_bullet** bullets)
-{
-	/*
-	if (player->bullet)
-	{
-		vector2D bulletLocation = player->entity.ref.origin;
-		bulletLocation = addVectors(bulletLocation, scaleVector(player->entity.ref.unitI, 100.0));
-		bullets[0] = bullet_create(bulletLocation, player->entity.ref.unitI);
-		player->bullet = false;
-	}
-	*/
-}

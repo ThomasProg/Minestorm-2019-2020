@@ -23,14 +23,15 @@ void entity_init(t_entity* entity)
 	entity->worldCollider.convexPolygons = NULL;
 
 	entity->velocity = nullVector();
-	//entity->acceleration = nullVector();
 }
 
 void entity_destroy(t_entity* entity)
 {
 	//cast : WARNING
 	polygon* a = entity->collision;
+
 	free(a->convexPolygons);
+
 	free(a);
 
 	if (entity->texture != NULL)

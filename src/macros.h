@@ -20,7 +20,7 @@
 
 //Mines stats
 #define FLOATING_MINE_VELOCITY {100.1f, 30.3f}
-#define MAGNETIC_MINE_SPEED 1.25f
+#define MAGNETIC_MINE_SPEED 125.f
 
 //Bullets stats
 #define BULLETS_SIZE 7.f

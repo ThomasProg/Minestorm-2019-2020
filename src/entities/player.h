@@ -49,7 +49,6 @@ void player_init(t_player* player);
 void player_destroy(t_player* player);
 void player_render(t_player* player, t_render* render);
 void player_tick(t_player* player, float deltaTime);
-void player_event(t_player* player, t_bullet** bullets);
 
 bInputs bInput_create();
 void player_inputs_run(t_player* player, float deltaTime);
