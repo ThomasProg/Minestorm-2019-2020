@@ -6,6 +6,7 @@
 #include "entities/entities.h"
 
 #include "bullets.h"
+#include "dynamicArray/dynamicArray.h"
 
 typedef struct 
 {
@@ -13,6 +14,7 @@ typedef struct
 	bool isRight;
 	bool isForward;
 	bool shoot;
+	bool teleport;
 } bInputs;
 
 typedef struct 
@@ -35,14 +37,15 @@ typedef struct s_player
 
     t_entity entity;
 
-	t_bullet** bullets; //array of references
-	unsigned int nbBullets;
+	// t_bullet** bullets; //array of references
+	// unsigned int nbBullets;
+	t_dynamicArray bullets;
 
 	bInputs bInputs;
 	inputValues inputValues;
 } t_player;
 
-t_player* player_create();
+void player_init(t_player* player);
 void player_destroy(t_player* player);
 void player_render(t_player* player, t_render* render);
 void player_tick(t_player* player, float deltaTime);
@@ -52,6 +55,7 @@ bInputs bInput_create();
 void player_inputs_run(t_player* player, float deltaTime);
 void player_input_start(t_player* player, int key, bool start);
 
+inputValues getInputValues(unsigned int id);
 inputValues getInputValues1();
 inputValues getInputValues2();
 

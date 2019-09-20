@@ -10,10 +10,10 @@ typedef struct s_bullet
     vector2D velocity;
     circle collision;
 
-    bool isAlive;
+    //bool isAlive;
 } t_bullet;
 
-t_bullet* bullet_create();
+//t_bullet* bullet_create();
 void bullet_init(t_bullet* bullet, vector2D location, vector2D relativeVelocity, vector2D shootDirection);
 void bullet_destroy(t_bullet* bullet);
 

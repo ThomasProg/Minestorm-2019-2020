@@ -43,8 +43,28 @@ bInputs bInput_create()
 	bInputs.isLeft = false;
 	bInputs.isRight = false;
 	bInputs.shoot = false;
+	bInputs.teleport = false;
 
 	return bInputs;
+}
+
+inputValues getInputValues(unsigned int id)
+{
+	inputValues inputValues1;
+	switch (id)
+	{
+		case 0 : 
+			inputValues1 = getInputValues1();
+			break;
+
+		case 1 : 
+			inputValues1 = getInputValues2();
+			break;
+
+		default :
+			break;
+	}
+	return inputValues1;
 }
 
 inputValues getInputValues1()
@@ -73,11 +93,10 @@ inputValues getInputValues2()
 	return inputValues;
 }
 
-t_player* player_create()
+void player_init(t_player* player)
 {
-	t_player* player = malloc(sizeof(t_player));
-
     entity_init(&player->entity);
+	dynamicArray_Init(&player->bullets, sizeof(t_bullet), 16);
 
     player->entity.collision = malloc(sizeof(polygon));
     player_collision_init(player->entity.collision);
@@ -86,22 +105,17 @@ t_player* player_create()
 	player->life = 0;
 	player->score = 0;
 
-	player->nbBullets = 0;
-	player->bullets = NULL;
-
 	player->bInputs = bInput_create();
-
-	return player;
 }
 
 void player_destroy(t_player* player)
 {
-	for (unsigned int i = 0; i < player->nbBullets; i++)
-		bullet_destroy(player->bullets[i]);
+	for (unsigned int i = 0; dynamicArray_GetValidItemIndex(&player->bullets, &i); i++)
+	{
+		bullet_destroy(dynamicArray_GetItem(&player->bullets, i)); 
+	}
 
-	free(player->bullets);
-
-	free(player);
+	dynamicArray_Destroy(&player->bullets);
 }
 
 void player_render(t_player* player, t_render* render)
@@ -109,9 +123,9 @@ void player_render(t_player* player, t_render* render)
     entity_render(&player->entity, render);
     polygon_render(render->renderer, &player->entity.worldCollider, &player->entity.ref);
 
-	for (unsigned int i = 0; i < player->nbBullets; i++)
+	for (unsigned int i = 0; dynamicArray_GetValidItemIndex(&player->bullets, &i); i++)
 	{
-		bullet_render(render->renderer, player->bullets[i], BULLETS_PRECISION);
+		bullet_render(render->renderer, dynamicArray_GetItem(&player->bullets, i), BULLETS_PRECISION);
 	}
 
     //printf("x : %f y : %f\n", player->entity.ref.origin.x, player->entity.ref.origin.y);
@@ -129,9 +143,17 @@ void player_tick(t_player* player, float deltaTime)
 
     entity_tick(&player->entity, deltaTime);
 
-	for (unsigned int i = 0; i < player->nbBullets; i++)
+	t_bullet* bullet;
+	for (unsigned int i = 0; dynamicArray_GetValidItemIndex(&player->bullets, &i); i++)
 	{
-		bullet_tick(player->bullets[i], deltaTime);
+		bullet = dynamicArray_GetItem(&player->bullets, i);
+
+		bullet_tick(bullet, deltaTime);
+		if (bullet->timeAlive > BULLETS_TIME_ALIVE)
+		{
+			bullet_destroy(bullet);
+       		dynamicArray_RemoveItem(&player->bullets, i);
+		}
 	}
 }
 
@@ -150,6 +172,22 @@ void player_inputs_run(t_player* player, float deltaTime)
 	if (player->bInputs.isRight)
 	{
 		entity_move(&player->entity, E_RIGHT, deltaTime);
+	}
+
+	if (player->bInputs.shoot)
+	{
+		vector2D bulletLocation = player->entity.ref.origin;
+		bulletLocation = addVectors(bulletLocation, scaleVector(player->entity.ref.unitI, 100.0 * SHIP_SIZE));
+
+		t_bullet* bullet = dynamicArray_AddItem(&player->bullets);
+
+		bullet_init(bullet, bulletLocation, player->entity.velocity, player->entity.ref.unitI);
+		player->bInputs.shoot = false;
+	}
+	
+	if (player->bInputs.teleport)
+	{
+		entity_teleport(&player->entity);
 	}
 
 	// if (player->bInputs.shoot)
@@ -175,50 +213,12 @@ void player_input_start(t_player* player, int key, bool start)
 		
 	if (key == player->inputValues.teleport1 || key == player->inputValues.teleport2)
 	{
-		entity_teleport(&player->entity);
+		player->bInputs.teleport = start;
 	}
 
 	if (key == player->inputValues.shoot)
 	{
-		vector2D bulletLocation = player->entity.ref.origin;
-		bulletLocation = addVectors(bulletLocation, scaleVector(player->entity.ref.unitI, 100.0 * SHIP_SIZE));
-
-		t_bullet* bullet = NULL;
-		if (player->bullets == NULL && player->nbBullets == 0)
-		{
-			player->nbBullets = 1;
-			player->bullets = malloc(sizeof(t_bullet*));
-			bullet = bullet_create();
-			player->bullets[0] = bullet;
-		}
-		else
-		{	
-			unsigned int i = 0;
-			while (i < player->nbBullets)
-			{
-				if (!player->bullets[i]->isAlive)
-				{
-					bullet = player->bullets[i];
-					break;
-				}
-				i++;
-			}
-			if (bullet == NULL)
-			{
-				unsigned int currentLoc = i;
-				player->nbBullets *= 2;
-				player->bullets = realloc(player->bullets, player->nbBullets * sizeof(t_bullet*));
-				while (i < player->nbBullets)
-				{
-					player->bullets[i] = bullet_create();
-					i++;
-				}
-				bullet = player->bullets[currentLoc];
-			}
-		}
-		player->bullets[player->nbBullets] = bullet_create(bulletLocation, player->entity.ref.unitI);
-		bullet_init(bullet, bulletLocation, player->entity.velocity, player->entity.ref.unitI);
-		player->bInputs.shoot = false;
+		player->bInputs.shoot = start;
 	}
 }
 

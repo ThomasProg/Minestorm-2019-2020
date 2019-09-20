@@ -43,27 +43,27 @@ void mine_collisionBox_init(polygon* collision,
 }
 
 //TODO : enum Mine Type
-void mine_spawn(void* mine, unsigned int type, vector2D* spawners, unsigned int nbSpawners)
+void mine_spawn(void* mine, unsigned int type, vector2D spawner)
 {
     if (type == 0)
     {
         t_floatingMine* floatingMine = mine;
         floatingMine_init(floatingMine);
-        floatingMine->entity.ref.origin = spawners[nbSpawners];
+        floatingMine->entity.ref.origin = spawner;
         return;
     }
     if (type == 1)
     {
         t_magneticMine* magneticMine = mine;
         magneticMine_init(magneticMine);
-        magneticMine->entity.ref.origin = spawners[nbSpawners];
+        magneticMine->entity.ref.origin = spawner;
         return;
     }
     if (type == 2)
     {
         t_fireballMine* fireballMine = mine;
         fireballMine_init(fireballMine);
-        fireballMine->entity.ref.origin = spawners[nbSpawners];
+        fireballMine->entity.ref.origin = spawner;
         return;
     }
 

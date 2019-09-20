@@ -21,7 +21,6 @@ void level_destroy(level* level)
     switch (level->levelID)
     {
         case E_PLAY :
-            level->data = world_create();
             world_destroy(level->data);
             break;
         case E_MENU :

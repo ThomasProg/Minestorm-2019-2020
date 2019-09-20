@@ -14,21 +14,14 @@
 
 typedef struct 
 {
-    //arrays of poiners
-    //t_entity** entities;
-    t_player** players;
-    vector2D* spawners;
-    unsigned int nbSpawners;
+    t_dynamicArray players;
+    t_dynamicArray spawners;
 
-    
-    //t_fireballMine** fireballsMines;
     t_dynamicArray floatingMines;
     t_dynamicArray magneticMines;
     t_dynamicArray fireballMines;
-    //t_floatingMine** floatingMines;
-    //unsigned int nbfloatingMines;
-    //t_magneticMine** magneticMines;
 
+    bool isPaused;
 } t_world;
 
 t_world* world_create();

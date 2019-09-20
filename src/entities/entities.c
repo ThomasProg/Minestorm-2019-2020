@@ -20,6 +20,8 @@ void entity_init(t_entity* entity)
 
 	entity->maxSpeed = 500.f;
 
+	entity->worldCollider.convexPolygons = NULL;
+
 	entity->velocity = nullVector();
 	//entity->acceleration = nullVector();
 }
@@ -37,6 +39,15 @@ void entity_destroy(t_entity* entity)
 
 void entity_render(t_entity* entity, t_render* render)
 {
+	if (entity->worldCollider.convexPolygons != NULL)
+	{
+		for (unsigned int i = 0; i < entity->worldCollider.nbConvexPolygons; i++)
+		{
+			free(entity->worldCollider.convexPolygons[i].points);
+		}
+		free(entity->worldCollider.convexPolygons);
+	}
+
 	polygon* poly = entity->collision;
 	entity->worldCollider = localToWorld_polygon(poly, entity->ref);
 }

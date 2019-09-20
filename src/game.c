@@ -53,8 +53,6 @@ void game_loop(game* game)
 
 		SDL_Delay(1);
 	}
-	
-	level_destroy(&game->level);
 }
 
 bool game_init(game* game)
@@ -76,6 +74,15 @@ bool game_init(game* game)
 	return 1;
 }
 
+void game_destroy(game* game)
+{
+	assets_destroy(game->assets);
+	level_destroy(&game->level);
+	//free(game->assets);
+
+	SDL_Quit();
+}
+
 void startGame()
 {
 	game game;
@@ -84,6 +91,7 @@ void startGame()
 	
 	game_loop(&game);
 
+	game_destroy(&game);
 }
 
 int main()

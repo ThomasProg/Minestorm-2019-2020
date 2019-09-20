@@ -13,5 +13,6 @@
 void mine_collisionBox_init(polygon* collision, 
     unsigned int nbPolygons, float size1, float size2);
 
-void mine_spawn(void* mine, unsigned int type, vector2D* spawners, unsigned int nbSpawners);
+void mine_spawn(void* mine, unsigned int type, vector2D spawner);
+
 #endif

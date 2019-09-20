@@ -21,7 +21,7 @@ void render_add(t_render* render, const char* filename)
 		SDL_Texture** elems = render->textures->data;
 		elems[render->textures->nextIndex] = SDL_CreateTextureFromSurface(render->renderer, surface);
 		render->textures->nextIndex++;
-
+		SDL_FreeSurface(surface);
 	}
 }
 
@@ -37,6 +37,7 @@ void render_destroy(t_render* render)
 	}
 	
 	queue_destroy(render->textures);
+	SDL_DestroyRenderer(render->renderer);
 	free(render);
 }
 
