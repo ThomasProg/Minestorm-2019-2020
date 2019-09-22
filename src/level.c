@@ -1,6 +1,7 @@
 #include "level.h"
 
 #include "world.h"
+#include "menu.h"
 
 void level_init(level* level, E_LEVEL levelID)
 {
@@ -11,8 +12,8 @@ void level_init(level* level, E_LEVEL levelID)
             level->data = world_create();
             break;
         case E_MENU :
-
-            break;
+		level->data = menu_create();
+		break;
     }
 }
 
@@ -24,7 +25,7 @@ void level_destroy(level* level)
             world_destroy(level->data);
             break;
         case E_MENU :
-
+		menu_destroy(level->data);
             break;
     }
 }

@@ -122,7 +122,7 @@ void mine_init(t_mine* mine, unsigned int type, vector2D location, float size)
 	{	
 		for (unsigned int j = 0; j < collision->convexPolygons[i].size; j++)
 		{
-			collision->convexPolygons[i].points[j] = scaleVector(collision->convexPolygons[i].points[j], size);
+			collision->convexPolygons[i].points[j] = scaleVector(collision->convexPolygons[i].points[j], size * WINDOW_SCALE);
 		}
 	}
 

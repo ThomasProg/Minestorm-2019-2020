@@ -157,10 +157,10 @@ bool rangeIntersect(range range1, range range2)
 axisAlignedRectangle aabbRectangleGenerate(point2D* points, unsigned int size)
 {
 	axisAlignedRectangle rect;
-	if (/*points != NULL ||*/ size == 0)
-	{
-		return rect;//assert() //TODO ERROR
-	}
+	//if (/*points != NULL ||*/ size == 0)
+	//{
+	//	return rect;//assert() //TODO ERROR
+	//}
 
 	vector2D min = points[0];
 	vector2D max = min;

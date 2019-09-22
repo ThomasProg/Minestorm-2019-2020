@@ -1,9 +1,11 @@
 #ifndef _MACROS_H_
 #define _MACROS_H_
 
+#define WINDOW_SCALE 0.5
+
 //window
-#define WINDOW_SIZE_X 1200
-#define WINDOW_SIZE_Y 800
+#define WINDOW_SIZE_X 1500 * WINDOW_SCALE
+#define WINDOW_SIZE_Y 800 * WINDOW_SCALE
 
 //Entities Physics
 #define AIR_FRICTION 600.f
@@ -16,14 +18,14 @@
 #define ANGULAR_SPEED 4.f
 #define ACCELERATION 3000.f
 #define ENTITY_MASS 3.f
-#define SHIP_SIZE 0.25f
+#define SHIP_SIZE 0.25f * WINDOW_SCALE
 
 //Mines stats
 #define FLOATING_MINE_VELOCITY {100.1f, 30.3f}
 #define MAGNETIC_MINE_SPEED 125.f
 
 //Bullets stats
-#define BULLETS_SIZE 7.f
+#define BULLETS_SIZE 7.f * WINDOW_SCALE
 #define BULLETS_PRECISION 15.f
 #define BULLETS_TIME_ALIVE 2.f
 

@@ -179,7 +179,8 @@ void world_inputs(game* game, t_world* world)
 			}
 
 			if (key == SDLK_ESCAPE)
-				game->run = false;
+				level_modify(&game->level, E_MENU);
+				//game->run = false;
 
 			for (unsigned int i = 0; dynamicArray_GetValidItemIndex(&world->players, &i); i++)
 			{

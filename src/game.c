@@ -12,19 +12,13 @@
 #include <time.h>
 
 #include "world.h"
-
-void menu_loop()
-{
-	
-}
+#include "menu.h"
 
 void game_loop(game* game)
 {
 	SDL_Renderer* renderer = game->assets->render->renderer;
 	int lastTime = 0.0, time;
 	float deltaTime;
-
-	level_init(&game->level, E_PLAY);
 
 	while (game->run)
 	{
@@ -39,7 +33,7 @@ void game_loop(game* game)
 		switch (game->level.levelID)
 		{
 			case E_MENU :
-				menu_loop();
+				menu_loop(game->assets, deltaTime, game);
 				break;
 			case E_PLAY : 
 				world_loop(game->assets, deltaTime, game);
@@ -69,7 +63,8 @@ bool game_init(game* game)
 	//font_add(assets->font, "media/arial.ttf", 10);
 
 	game->assets = assets;
-	game->level.levelID = E_PLAY;
+	//game->level.levelID = E_PLAY;
+	level_init(&game->level, E_MENU);//E_PLAY);
 	game->run = true;
 	return 1;
 }
