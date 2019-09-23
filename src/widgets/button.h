@@ -8,10 +8,11 @@ typedef struct
 {
 	SDL_Rect destination;
 	SDL_Texture* texture;
-} t_button;
+} t_image;
 
+typedef t_image t_button;
 
-t_button* button_init(SDL_Texture* texture, SDL_Rect rect);
+t_button* button_init(SDL_Texture* texture, SDL_Rect dest);
 
 void button_destroy(t_button* button);
 

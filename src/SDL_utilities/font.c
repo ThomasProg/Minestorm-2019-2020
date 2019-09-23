@@ -30,3 +30,9 @@ void font_destroy(t_font* font)
 	queue_destroy(font->font);
 	free(font);
 }
+
+TTF_Font* font_get(t_font* font, unsigned int i)
+{
+	return ((TTF_Font**)(font->font->data))[i];
+	//return *((TTF_Font**) dynamicArray_GetItem(&font->font, i));
+}

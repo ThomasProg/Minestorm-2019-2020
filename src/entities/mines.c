@@ -79,8 +79,9 @@ void mine_collisionBox_init(polygon* collision,
 
 //void mine_init(t_mine* mine, bool followPlayer, bool throwFireballs)
 //void mine_spawn(void* mine, unsigned int type, vector2D location)
-void mine_init(t_mine* mine, unsigned int type, vector2D location, float size)
+void mine_init(t_mine* mine, unsigned int type, vector2D location, E_SIZE sizeType) //float size)
 {
+
     entity_init(&mine->entity);
 
     mine->entity.collision = malloc(sizeof(polygon));
@@ -92,29 +93,98 @@ void mine_init(t_mine* mine, unsigned int type, vector2D location, float size)
             mine_collisionBox_init(mine->entity.collision, 3, 25, 100);
             mine->followPlayer = false;
             mine->throwFireballs = false;
+            switch (sizeType)
+            {
+                case SMALL:
+                    mine->givenScore = 200;
+                    break;
+                case MEDIUM:
+                    mine->givenScore = 135;
+                    break;
+                case BIG:
+                    mine->givenScore = 100;
+                    break;
+                
+                default:
+                    break;
+            }
             break;
 
         case 1 :
-            mine_collisionBox_init(mine->entity.collision, 4, 50, 100);
+            mine_collisionBox_init(mine->entity.collision, 4, 25, 100);
             mine->followPlayer = true;
             mine->throwFireballs = false;
+            switch (sizeType)
+            {
+                case SMALL:
+                    mine->givenScore = 600;
+                    break;
+                case MEDIUM:
+                    mine->givenScore = 535;
+                    break;
+                case BIG:
+                    mine->givenScore = 500;
+                    break;
+                
+                default:
+                    break;
+            }
             break;
         
         case 2 :
-            mine_collisionBox_init(mine->entity.collision, 4, 25, 100);
+            mine_collisionBox_init(mine->entity.collision, 4, 50, 100);
             mine->followPlayer = false;
             mine->throwFireballs = true;
+            switch (sizeType)
+            {
+                case SMALL:
+                    mine->givenScore = 325;
+                    break;
+                case MEDIUM:
+                    mine->givenScore = 360;
+                    break;
+                case BIG:
+                    mine->givenScore = 425;
+                    break;
+                
+                default:
+                    break;
+            }
             break;
 
         case 3 :
             mine_collisionBox_init(mine->entity.collision, 4, 10, 100);
             mine->followPlayer = true;
             mine->throwFireballs = true;
+            switch (sizeType)
+            {
+                case SMALL:
+                    mine->givenScore = 850;
+                    break;
+                case MEDIUM:
+                    mine->givenScore = 585;
+                    break;
+                case BIG:
+                    mine->givenScore = 750;
+                    break;
+                
+                default:
+                    break;
+            }
             break;
         default :
             assert(false); //no mine of this id exists
             break;
     }
+
+    mine->sizeType = sizeType;
+
+    if (sizeType == SMALL)
+        mine->size = 0.2f;
+    if (sizeType == MEDIUM)
+        mine->size = 0.6f;
+    if (sizeType == BIG)
+        mine->size = 1.0f;
 
     polygon* collision = mine->entity.collision;
     //TODO : resize Polygon (because same as player's one)
@@ -122,11 +192,10 @@ void mine_init(t_mine* mine, unsigned int type, vector2D location, float size)
 	{	
 		for (unsigned int j = 0; j < collision->convexPolygons[i].size; j++)
 		{
-			collision->convexPolygons[i].points[j] = scaleVector(collision->convexPolygons[i].points[j], size * WINDOW_SCALE);
+			collision->convexPolygons[i].points[j] = scaleVector(collision->convexPolygons[i].points[j], mine->size * WINDOW_SCALE);
 		}
 	}
 
-    mine->size = size;
     mine->entity.ref.origin = location;
 	mine->entity.collisionType = E_FLOATING_MINE;
     mine->target = NULL;

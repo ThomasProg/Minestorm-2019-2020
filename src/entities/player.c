@@ -131,10 +131,18 @@ void player_render(t_player* player, t_render* render)
     //printf("x : %f y : %f\n", player->entity.ref.origin.x, player->entity.ref.origin.y);
 	//printf("x : %f y : %f\n", player->entity.velocity.x, player->entity.velocity.y);
 
-    //player->entity.aabb = aabbRectangleGenerate(collision->leftSide.points, 4);
-    // axisAlignedRectangle rec = aabbRectangleGenerate(collision->leftSide.points, 4);
-    // rec.center = addVectors(rec.center, player->entity.ref.origin); 
-    // axisAlignedRectangle_render(render->renderer, player->entity.aabb);
+	polygon* polygon = &player->entity.worldCollider;
+	point2D* points = (polygon->convexPolygons[0]).points;//, polygon->convexPolygons->size);
+    polygon->convexPolygons[0].aabb = aabbRectangleGenerate(points, polygon->convexPolygons[0].size);
+    axisAlignedRectangle_render(render->renderer, polygon->convexPolygons[0].aabb);
+
+	polygon = &player->entity.worldCollider;
+	points = (polygon->convexPolygons[1]).points;//, polygon->convexPolygons->size);
+    polygon->convexPolygons[1].aabb = aabbRectangleGenerate(points, polygon->convexPolygons[1].size);
+    axisAlignedRectangle_render(render->renderer, polygon->convexPolygons[1].aabb);
+
+	polygon->aabb = fuseAxisAlignedRectangles(polygon->convexPolygons[0].aabb, polygon->convexPolygons[1].aabb);
+	axisAlignedRectangle_render(render->renderer, polygon->aabb);
 }
 
 void player_tick(t_player* player, float deltaTime)

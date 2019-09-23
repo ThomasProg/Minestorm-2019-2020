@@ -99,11 +99,7 @@ decimal dotProduct(vector2D u, vector2D v)
 
 decimal vectorAngle(vector2D vector1)
 {
-	// decimal angle = acosf(vector1.x);
-	// if (vector1.y < 0)
-	// 	angle *= -1;
-	// return acosf(vector1.x);
-	return atan2f(vector1.x, vector1.y); //TODO
+	return atan2f(vector1.x, vector1.y);
 }
 
 decimal vectorsAngle(vector2D vector1, vector2D vector2)
@@ -182,4 +178,31 @@ axisAlignedRectangle aabbRectangleGenerate(point2D* points, unsigned int size)
 	rect.center.x = min.x + rect.halfSize.x;
 	rect.center.y = min.y + rect.halfSize.y;
 	return rect;
+}
+
+axisAlignedRectangle fuseAxisAlignedRectangles(axisAlignedRectangle a, axisAlignedRectangle b)
+{
+	axisAlignedRectangle returned; 
+
+	point2D amin = substractVectors(a.center, a.halfSize);
+	point2D amax = addVectors(a.center, a.halfSize); 
+
+	point2D bmin = substractVectors(b.center, b.halfSize);
+	point2D bmax = addVectors(b.center, b.halfSize); 
+
+	range rangeX = rangeCreate(amin.x, amax.x);
+	rangeX = rangeAddScalar(rangeX, bmin.x);
+	rangeX = rangeAddScalar(rangeX, bmax.x);
+
+	range rangeY = rangeCreate(amin.y, amax.y);
+	rangeY = rangeAddScalar(rangeY, bmin.y);
+	rangeY = rangeAddScalar(rangeY, bmax.y);
+
+	returned.center.x = (rangeX.max + rangeX.min) / 2;
+	returned.center.y = (rangeY.max + rangeY.min) / 2;
+
+	returned.halfSize.x = (rangeX.max - rangeX.min) / 2;
+	returned.halfSize.y = (rangeY.max - rangeY.min) / 2;
+
+	return returned;
 }

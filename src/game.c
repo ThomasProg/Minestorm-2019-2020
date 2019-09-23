@@ -31,12 +31,13 @@ void game_loop(game* game)
 		SDL_SetRenderDrawColor(renderer, 0x00, 0x10, 0x10, 0xFF);
 		SDL_RenderClear(renderer);
 		
-	//SDL_Surface* surface = IMG_Load("media/Stickman_Sprite_Sheet.png");
-		SDL_Texture* texture = render_get(game->assets->render, 0);//SDL_CreateTextureFromSurface(game->assets->render->renderer, surface);
-		//SDL_FreeSurface(surface);
-	SDL_Rect rect = {0, 0, 50, 100};
-	SDL_Rect src = {0, 100, 50, 100};
-	SDL_RenderCopy(renderer, texture, &src, &rect);
+	// SDL_Surface* surface = IMG_Load("media/Stickman_Sprite_Sheet.png");
+	// 	//SDL_Texture* texture = render_get(game->assets->render, 0);//SDL_CreateTextureFromSurface(game->assets->render->renderer, surface);
+	// 	SDL_Texture* texture = SDL_CreateTextureFromSurface(game->assets->render->renderer, surface);
+	// 	SDL_FreeSurface(surface);
+	// SDL_Rect rect = {0, 0, 50, 100};
+	// SDL_Rect src = {0, 100, 50, 100};
+	// SDL_RenderCopy(renderer, texture, &src, &rect);
 
 		level_tick(&game->level, game->assets, deltaTime);
 
@@ -47,7 +48,7 @@ void game_loop(game* game)
 
 		SDL_RenderPresent(renderer);
 
-		SDL_Delay(1);
+		//SDL_Delay(1);
 	}
 }
 
@@ -58,15 +59,20 @@ bool game_init(game* game)
 	if (SDL_Init(SDL_INIT_VIDEO|SDL_INIT_AUDIO) != 0) 
 		return 0;
 
+	if (TTF_Init() < 0)
+	{
+		return 0;
+	}
+	
 	t_assets* assets = assets_create(50, 4, 1); //50 images, 4 sounds, 1 font
 	
 	render_add(assets->render, "media/Stickman_Sprite_Sheet.png");
 	//audio_add(assets->audio, "media/GourmetRace.wav");
-	//font_add(assets->font, "media/arial.ttf", 10);
+	font_add(assets->font, "media/font.ttf", 20);
 
 	game->assets = assets;
 	//game->level.levelID = E_PLAY;
-	level_init(&game->level, E_MENU);//E_PLAY);
+	level_init(&game->level, E_MENU, assets);//E_PLAY);
 	game->run = true;
 	return 1;
 }

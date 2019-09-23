@@ -45,12 +45,16 @@ typedef struct
 {
 	point2D* points;
 	unsigned int size;
+	
+	axisAlignedRectangle aabb;
 } convexPolygon;
 
 typedef struct 
 {
 	convexPolygon* convexPolygons;
 	unsigned int nbConvexPolygons;
+
+	axisAlignedRectangle aabb;
 } polygon;
 
 typedef struct 
@@ -107,5 +111,6 @@ range rangeAddScalar(range range1, decimal scalar);
 bool rangeIntersect(range range1, range range2);
 
 axisAlignedRectangle aabbRectangleGenerate(point2D* points, unsigned int size);
+axisAlignedRectangle fuseAxisAlignedRectangles(axisAlignedRectangle a, axisAlignedRectangle b);
 
 #endif

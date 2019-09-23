@@ -31,7 +31,7 @@ typedef struct s_entity
 	vector2D velocity;
 	referential ref;
 
-	axisAlignedRectangle aabb;
+	//axisAlignedRectangle aabb;
 	void* collision;
 	polygon worldCollider;
 	E_COLLISION_TYPE collisionType;

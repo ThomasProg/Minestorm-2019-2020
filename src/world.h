@@ -12,8 +12,20 @@
 #include "entities/spawner.h"
 #include "entities/player.h"
 
+#include "widgets/button.h"
+#include "widgets/textbox.h"
+
 #include "game.h"
 #include "level.h"
+
+typedef struct 
+{
+    t_button* menuButton;
+    t_button* pauseButton;
+
+    t_textbox* scoreTextBox;
+    t_textbox* lifeTextBox;
+} t_widgets;
 
 typedef struct 
 {
@@ -24,9 +36,12 @@ typedef struct
     t_dynamicArray bullets;
 
     bool isPaused;
+
+    t_widgets widgets;
 } t_world;
 
-t_world* world_create();
+
+t_world* world_create(t_assets* assets);
 void world_loop(t_assets* assets, float deltaTime, t_level* level);
 void world_destroy(t_world* world);
 

@@ -3,7 +3,7 @@
 #include "world.h"
 #include "menu.h"
 
-void level_init(t_level* level, E_LEVEL levelID)
+void level_init(t_level* level, E_LEVEL levelID, t_assets* assets)
 {
     level->levelID = levelID;
     level->nextLevel = E_NULL;
@@ -11,10 +11,10 @@ void level_init(t_level* level, E_LEVEL levelID)
     switch (levelID)
     {
         case E_PLAY :
-            level->data = world_create();
+            level->data = world_create(assets);
             break;
         case E_MENU :
-		    level->data = menu_create();
+		    level->data = menu_create(assets);
 		    break;
         case E_QUIT :
             break;
@@ -44,10 +44,10 @@ void level_destroy(t_level* level)
     level->nextLevel = E_NULL;
 }
 
-void level_modify(t_level* level, E_LEVEL newLevelID)
+void level_modify(t_level* level, E_LEVEL newLevelID, t_assets* assets)
 {
     level_destroy(level);
-    level_init(level, newLevelID);
+    level_init(level, newLevelID, assets);
 }
 
 void level_modifySafe(t_level* level, E_LEVEL newLevelID)
@@ -74,7 +74,7 @@ void level_tick(t_level* level, t_assets* assets, float deltaTime)
 
     if (level->nextLevel != E_NULL)
     {
-        level_modify(level, level->nextLevel);
+        level_modify(level, level->nextLevel, assets);
         level->nextLevel = E_NULL;
     }
 }

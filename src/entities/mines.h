@@ -19,19 +19,28 @@
 //     MAGNETIC_FIREBALL_MINE
 // } E_MINE;
 
+typedef enum 
+{
+    SMALL = 0,
+    MEDIUM,
+    BIG
+} E_SIZE;
+
 typedef struct s_mine
 {
     bool followPlayer;
     bool throwFireballs;
 
+    E_SIZE sizeType;
     float size; 
+    unsigned int givenScore;
     
     t_entity entity;
     t_player* target;
 
 } t_mine;
 
-void mine_init(t_mine* mine, unsigned int type, vector2D location, float size);
+void mine_init(t_mine* mine, unsigned int type, vector2D location, E_SIZE sizeType);//float size);
 void mine_destroy(t_mine* mine);
 
 void mine_render(t_mine* mine, t_render* render);

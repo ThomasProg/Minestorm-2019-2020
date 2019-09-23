@@ -30,7 +30,7 @@ void dynamicArray_Init(t_dynamicArray* array, size_t itemSize, unsigned int defa
     array->itemSize = itemSize;
     array->unusedItemLowerBound = 0;
     array->usedItems = 0;
-
+    //memset()
     dynamicArray_RemoveRange(array, 0, defaultNbItems);
     //fprintf(stderr, "MEMORY ALLOCATED : %lu\n", 8 * itemSize);
 }

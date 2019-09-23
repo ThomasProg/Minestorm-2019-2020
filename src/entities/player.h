@@ -37,8 +37,6 @@ typedef struct s_player
 
     t_entity entity;
 
-	// t_bullet** bullets; //array of references
-	// unsigned int nbBullets;
 	t_dynamicArray bullets;
 
 	bInputs bInputs;

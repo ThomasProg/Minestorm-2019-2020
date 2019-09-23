@@ -20,11 +20,11 @@ typedef struct
     E_LEVEL nextLevel;
 } t_level;
 
-void level_init(t_level* level, E_LEVEL levelID);
+void level_init(t_level* level, E_LEVEL levelID, t_assets* assets);
 void level_destroy(t_level* level);
 
 //destroy current level then init the selected one
-void level_modify(t_level* level, E_LEVEL newLevelID);
+void level_modify(t_level* level, E_LEVEL newLevelID, t_assets* assets);
 
 //run level_modify at the end of the tick
 //allow the dev to modify the level while in a level

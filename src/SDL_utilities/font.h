@@ -15,4 +15,6 @@ t_font* font_create(const unsigned int nbFonts);
 void    font_add(t_font* font, const char* filename, const unsigned int size);
 void    font_destroy(t_font* font);
 
+TTF_Font* font_get(t_font* font, unsigned int i);
+
 #endif
