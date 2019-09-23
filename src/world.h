@@ -27,7 +27,7 @@ typedef struct
 } t_world;
 
 t_world* world_create();
-void world_loop(t_assets* assets, float deltaTime, game* game);
+void world_loop(t_assets* assets, float deltaTime, t_level* level);
 void world_destroy(t_world* world);
 
 void newWorldLevel(t_world* world, unsigned int level);

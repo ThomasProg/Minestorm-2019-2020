@@ -1,6 +1,7 @@
 #include "render.h"
 #include "macros.h"
 #include <SDL2/SDL_image.h>
+#include <stdio.h>
 
 t_render* render_create(const unsigned int nbTextures)
 {
@@ -20,9 +21,12 @@ void render_add(t_render* render, const char* filename)
 		queue_add(render->textures);
 		SDL_Texture** elems = render->textures->data;
 		elems[render->textures->nextIndex] = SDL_CreateTextureFromSurface(render->renderer, surface);
+		fprintf(stderr, "id : %d\n", render->textures->nextIndex);
 		render->textures->nextIndex++;
 		SDL_FreeSurface(surface);
+
 	}
+
 }
 
 void render_destroy(t_render* render)

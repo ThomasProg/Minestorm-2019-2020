@@ -13,7 +13,7 @@ typedef struct
 } t_menu;
 
 t_menu* menu_create();
-void menu_loop(t_assets* assets, float deltaTime, game* game);
+void menu_loop(t_assets* assets, float deltaTime, t_level* level);
 void menu_destroy(t_menu* menu);
 
 #endif

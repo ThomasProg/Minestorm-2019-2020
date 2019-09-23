@@ -164,7 +164,7 @@ void world_tick(t_world* world, float deltaTime)
 	// }
 }
 
-void world_inputs(game* game, t_world* world)
+void world_inputs(t_level* level, t_world* world)
 {
     SDL_Event event;
 	while (SDL_PollEvent(&event))
@@ -179,8 +179,7 @@ void world_inputs(game* game, t_world* world)
 			}
 
 			if (key == SDLK_ESCAPE)
-				level_modify(&game->level, E_MENU);
-				//game->run = false;
+				level_modifySafe(level, E_MENU);
 
 			for (unsigned int i = 0; dynamicArray_GetValidItemIndex(&world->players, &i); i++)
 			{
@@ -198,7 +197,10 @@ void world_inputs(game* game, t_world* world)
 			}
 		}
 		if (event.type == SDL_QUIT)
-			game->run = false;
+			level_modifySafe(level, E_QUIT);
+			//level->quit = true;
+			//level_modify(level, E_QUIT);
+			//game->run = false;
 	}
 }
 
@@ -337,9 +339,9 @@ void world_collisions(t_world* world)
 	}
 }
 
-void world_loop(t_assets* assets, float deltaTime, game* game)
+void world_loop(t_assets* assets, float deltaTime, t_level* level)
 {
-    t_world* world = ((t_world*) (game->level.data));
+    t_world* world = ((t_world*) (level->data));
 
 	if (world->spawners.usedItems > 0)
 	{
@@ -378,7 +380,7 @@ void world_loop(t_assets* assets, float deltaTime, game* game)
 
 	world_render(world, assets);
 
-	world_inputs(game, world);
+	world_inputs(level, world);
 
 	if (world->isPaused)
 		return;

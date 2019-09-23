@@ -35,7 +35,7 @@ void menu_tick(t_menu* menu, float deltaTime)
 
 }
 
-void menu_inputs(game* game, t_menu* menu)
+void menu_inputs(t_level* level, t_menu* menu)
 {
     SDL_Event event;
 	while (SDL_PollEvent(&event))
@@ -47,11 +47,13 @@ void menu_inputs(game* game, t_menu* menu)
 			{
 				//world->isPaused = !world->isPaused;
 				//break;
-				level_modify(&game->level, E_PLAY);
+				level_modify(level, E_PLAY);
 			}
 
 			if (key == SDLK_ESCAPE)
-				game->run = false;
+				level_modifySafe(level, E_QUIT);
+				//level_modify(level, E_QUIT);
+				//game->run = false;
 
 		}
 		if (event.type == SDL_KEYUP) //release
@@ -61,18 +63,20 @@ void menu_inputs(game* game, t_menu* menu)
 
 		}
 		if (event.type == SDL_QUIT)
-			game->run = false;
+			level_modifySafe(level, E_QUIT);
+			//level_modify(level, E_QUIT);
+			//game->run = false;
 	}
 }
 
 
-void menu_loop(t_assets* assets, float deltaTime, game* game)
+void menu_loop(t_assets* assets, float deltaTime, t_level* level)
 {
-	t_menu* menu = ((t_menu*) (game->level.data));
+	t_menu* menu = ((t_menu*) (level->data));
 
 	menu_render(menu, assets);
 
-	menu_inputs(game, menu);
+	menu_inputs(level, menu);
 
 	//if (world->isPaused)
 	//	return;

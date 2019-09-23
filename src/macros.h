@@ -1,7 +1,7 @@
 #ifndef _MACROS_H_
 #define _MACROS_H_
 
-#define WINDOW_SCALE 0.5
+#define WINDOW_SCALE 1.0
 
 //window
 #define WINDOW_SIZE_X 1500 * WINDOW_SCALE

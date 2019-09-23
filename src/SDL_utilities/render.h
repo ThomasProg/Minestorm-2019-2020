@@ -8,6 +8,7 @@
 typedef struct s_render
 {
 	t_queue*      textures;
+	//t_dynamicArray textures;
 	SDL_Renderer* renderer;
 	SDL_Window*   window;
 } t_render;

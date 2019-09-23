@@ -20,7 +20,10 @@ void button_destroy(t_button* button)
 
 void button_render(SDL_Renderer* renderer, t_button* button)
 {
-	SDL_RenderCopy(renderer, button->texture, &button->destination, &button->destination);
+	SDL_Rect rect = {0, 0, 50, 100};
+	SDL_Rect src = {0, 100, 50, 100};
+	SDL_RenderCopy(renderer, button->texture, &src, &rect);
+	//SDL_RenderCopy(renderer, button->texture, &button->destination, &button->destination);
 
 }
 

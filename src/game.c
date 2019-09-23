@@ -10,6 +10,7 @@
 #include "vector2D/collisions2D.h"
 
 #include <time.h>
+#include <SDL2/SDL_image.h>
 
 #include "world.h"
 #include "menu.h"
@@ -30,17 +31,18 @@ void game_loop(game* game)
 		SDL_SetRenderDrawColor(renderer, 0x00, 0x10, 0x10, 0xFF);
 		SDL_RenderClear(renderer);
 		
-		switch (game->level.levelID)
-		{
-			case E_MENU :
-				menu_loop(game->assets, deltaTime, game);
-				break;
-			case E_PLAY : 
-				world_loop(game->assets, deltaTime, game);
-				break;
+	//SDL_Surface* surface = IMG_Load("media/Stickman_Sprite_Sheet.png");
+		SDL_Texture* texture = render_get(game->assets->render, 0);//SDL_CreateTextureFromSurface(game->assets->render->renderer, surface);
+		//SDL_FreeSurface(surface);
+	SDL_Rect rect = {0, 0, 50, 100};
+	SDL_Rect src = {0, 100, 50, 100};
+	SDL_RenderCopy(renderer, texture, &src, &rect);
 
-			default : 
-				break;
+		level_tick(&game->level, game->assets, deltaTime);
+
+		if (game->level.levelID == E_QUIT)
+		{
+			game->run = false;
 		}
 
 		SDL_RenderPresent(renderer);

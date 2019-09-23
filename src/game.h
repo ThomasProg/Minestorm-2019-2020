@@ -8,7 +8,7 @@
 
 typedef struct 
 {
-    level level;
+    t_level level;
     t_assets* assets;
     bool run;
 } game;
