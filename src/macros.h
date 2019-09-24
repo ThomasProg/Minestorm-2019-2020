@@ -15,8 +15,8 @@
 #define DRIFT_LEVEL 2.f 
 
 //Player
-#define NB_PLAYERS 2
-#define SHOOT_INTERVAL 400
+#define NB_PLAYERS 1
+#define SHOOT_INTERVAL 0//400
 #define ANGULAR_SPEED 4.f
 #define ACCELERATION 3000.f
 #define ENTITY_MASS 3.f
@@ -25,11 +25,13 @@
 //Mines stats
 #define FLOATING_MINE_VELOCITY {100.1f, 30.3f}
 #define MAGNETIC_MINE_SPEED 125.f
+#define NB_MINE_SIZES 3
 
 //Bullets stats
+#define BULLET_SPEED 250
 #define BULLETS_SIZE 7.f * WINDOW_SCALE
 #define BULLETS_PRECISION 15
-#define BULLETS_TIME_ALIVE 2.f
+#define BULLETS_TIME_ALIVE  2.f
 
 //Maths
 #define PI 3.14159265359f

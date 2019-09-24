@@ -24,9 +24,19 @@ typedef struct
 
     t_textbox* scoreTextBox2;
     t_textbox* lifeTextBox2;
-    
+
     t_textbox* gameOverTextBox;
+    t_textbox* pauseTextBox;
 } t_widgets;
+
+typedef struct 
+{
+    //unsigned int* minesNb;
+    unsigned int floatingMine;
+    unsigned int fireballMine;
+    unsigned int magneticMine;
+    unsigned int magneticFireballMine;
+} t_minesToSpawn;
 
 typedef struct 
 {
@@ -40,10 +50,16 @@ typedef struct
     bool debugMode;
 
     t_widgets widgets;
+    // t_minesToSpawn bigMinesToSpawn;
+    // t_minesToSpawn mediumMinesToSpawn;
+    // t_minesToSpawn smallMinesToSpawn;
+    unsigned int currentPlayLevel;
+    t_minesToSpawn* minesBySize;
+    float spawnDelay;
 } t_world;
 
 
-t_world* world_create(t_assets* assets);
+t_world* world_create(t_assets* assets, unsigned int nbPlayers);
 void world_loop(t_assets* assets, float deltaTime, t_level* level);
 void world_destroy(t_world* world);
 

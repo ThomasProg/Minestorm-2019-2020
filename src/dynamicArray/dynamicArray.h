@@ -8,11 +8,11 @@ typedef struct
     unsigned int unusedItemLowerBound; //AddItem optimisation
     unsigned int usedItems;            //Length optimisation
 
-    unsigned int nbItems; //stockage
-    void* data;           //stockage
-    bool* isUsed;         //stockage
-    size_t itemSize;      //stockage
-
+    //stockage
+    unsigned int nbItems; 
+    void* data;           
+    bool* isUsed;         
+    size_t itemSize;      
 
 } t_dynamicArray;
 

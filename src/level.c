@@ -11,7 +11,12 @@ void level_init(t_level* level, E_LEVEL levelID, t_assets* assets)
     switch (levelID)
     {
         case E_PLAY :
-            level->data = world_create(assets);
+            level->data = world_create(assets, 1);
+            break;
+        
+        case E_PLAY2 :
+            level->data = world_create(assets, 2);
+            level->levelID = E_PLAY;
             break;
         case E_MENU :
 		    level->data = menu_create(assets);
@@ -28,6 +33,7 @@ void level_destroy(t_level* level)
     switch (level->levelID)
     {
         case E_PLAY :
+        case E_PLAY2 :
             world_destroy(level->data);
             break;
         case E_MENU :
@@ -63,6 +69,7 @@ void level_tick(t_level* level, t_assets* assets, float deltaTime)
             menu_loop(assets, deltaTime, level);
             break;
         case E_PLAY : 
+        case E_PLAY2 :
             world_loop(assets, deltaTime, level);
             break;
         case E_QUIT :

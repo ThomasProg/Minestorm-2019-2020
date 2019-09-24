@@ -11,6 +11,7 @@ typedef enum
     E_QUIT = -1,
     E_MENU = 0,
     E_PLAY,
+    E_PLAY2
 } E_LEVEL;
 
 typedef struct

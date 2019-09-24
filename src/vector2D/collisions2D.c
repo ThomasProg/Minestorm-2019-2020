@@ -419,7 +419,6 @@ bool polygon_polgyon_collision(polygon* poly1, polygon* poly2)
 		{
 			if (convexPolygon_convexPolygon_collision(poly1->convexPolygons[i], poly2->convexPolygons[j]))
 			{
-				//fprintf();
 				return true;
 			}
 			j++;

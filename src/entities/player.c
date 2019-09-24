@@ -3,6 +3,7 @@
 
 #include <SDL2/SDL.h>
 
+#include "dynamicArray/dynamicArray.h"
 #include "player.h"
 #include "bullets.h"
 #include "macros.h"
@@ -96,7 +97,6 @@ inputValues getInputValues2()
 void player_init(t_player* player)
 {
     entity_init(&player->entity);
-	dynamicArray_Init(&player->bullets, sizeof(t_bullet), 16);
 
     player->entity.collision = malloc(sizeof(polygon));
     player_collision_init(player->entity.collision);
@@ -111,13 +111,6 @@ void player_init(t_player* player)
 
 void player_destroy(t_player* player)
 {
-	for (unsigned int i = 0; dynamicArray_GetValidItemIndex(&player->bullets, &i); i++)
-	{
-		bullet_destroy(dynamicArray_GetItem(&player->bullets, i)); 
-	}
-
-	dynamicArray_Destroy(&player->bullets);
-
     polygon_free(player->entity.collision);
 	free(player->entity.collision);
     polygon_free(&player->entity.worldCollider);
@@ -135,19 +128,6 @@ void player_tick(t_player* player, float deltaTime)
     player_inputs_run(player, deltaTime);
 
     entity_tick(&player->entity, deltaTime);
-
-	// t_bullet* bullet;
-	// for (unsigned int i = 0; dynamicArray_GetValidItemIndex(&player->bullets, &i); i++)
-	// {
-	// 	bullet = dynamicArray_GetItem(&player->bullets, i);
-
-	// 	bullet_tick(bullet, deltaTime);
-	// 	if (bullet->timeAlive > BULLETS_TIME_ALIVE)
-	// 	{
-	// 		bullet_destroy(bullet);
-    //    		dynamicArray_RemoveItem(&player->bullets, i);
-	// 	}
-	// }
 }
 
 void player_inputs_run(t_player* player, float deltaTime)
@@ -199,3 +179,18 @@ void player_input_start(t_player* player, int key, bool start)
 	}
 }
 
+void player_damages(t_player* player, t_dynamicArray* players, unsigned int id)
+{
+	//player damage
+	if (player->life == 1)
+	{
+		player_destroy(player);
+		dynamicArray_RemoveItem(players, id);
+	}
+	else
+	{
+		entity_teleport(&player->entity);
+	}
+	if (player->life != 0)
+		player->life--;	
+}

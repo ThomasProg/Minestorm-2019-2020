@@ -9,13 +9,15 @@
 //     return bullet;
 // }
 
-void bullet_init(t_bullet* bullet, vector2D location, vector2D relativeVelocity, vector2D shootDirection)
+void bullet_init(t_bullet* bullet, vector2D location, 
+                 vector2D relativeVelocity, vector2D shootDirection, bool isBullet)
 {
 	bullet->collision.center = location;
 	bullet->collision.length = BULLETS_SIZE;
     bullet->timeAlive = 0.f;
+    bullet->isBullet = isBullet;
 
-    bullet->velocity = addVectors(scaleVector(shootDirection, 600), relativeVelocity); //add velocity at shooting
+    bullet->velocity = addVectors(scaleVector(shootDirection, BULLET_SPEED), relativeVelocity); //add velocity at shooting
 }
 
 void bullet_destroy(t_bullet* bullet)

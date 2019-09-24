@@ -36,46 +36,8 @@ void mine_collisionBox_init(polygon* collision,
     }
 }
 
-//TODO : enum Mine Type
-// void mine_spawn(void* mine, unsigned int type, vector2D spawner)
-// {
-//     if (type == 0)
-//     {
-//         t_mine* floatingMine = mine;
-//         mine_init(floatingMine, false, false);
-//         floatingMine->entity.ref.origin = spawner;
-//         return;
-//     }
-//     if (type == 1)
-//     {
-//         t_mine* magneticMine = mine;
-//         mine_init(magneticMine, true, false);
-//         magneticMine->entity.ref.origin = spawner;
-//         return;
-//     }
-//     if (type == 2)
-//     {
-//         t_mine* fireballMine = mine;
-//         mine_init(fireballMine, false, true);
-//         fireballMine->entity.ref.origin = spawner;
-//         return;
-//     }
-//     if (type == 3)
-//     {
-//         t_mine* magneticFireballMine = mine;
-//         mine_init(magneticFireballMine, true, true);
-//         magneticFireballMine->entity.ref.origin = spawner;
-//         return;
-//     }
-
-//     assert(false); //type input is invalid : type must be from 0 to 3
-// }
-
-//void mine_init(t_mine* mine, bool followPlayer, bool throwFireballs)
-//void mine_spawn(void* mine, unsigned int type, vector2D location)
-void mine_init(t_mine* mine, unsigned int type, vector2D location, E_SIZE sizeType) //float size)
+void mine_init(t_mine* mine, unsigned int type, vector2D location, E_SIZE sizeType)
 {
-
     entity_init(&mine->entity);
 
     mine->entity.collision = malloc(sizeof(polygon));
@@ -191,7 +153,7 @@ void mine_init(t_mine* mine, unsigned int type, vector2D location, E_SIZE sizeTy
 	}
 
     mine->entity.ref.origin = location;
-	mine->entity.collisionType = E_FLOATING_MINE;
+	mine->entity.collisionType = E_MINE;
     mine->target = NULL;
 }
 

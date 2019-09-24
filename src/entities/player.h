@@ -37,7 +37,7 @@ typedef struct s_player
 
     t_entity entity;
 
-	t_dynamicArray bullets;
+	//t_dynamicArray bullets;
 	unsigned int lastShoot; //in milliseconds
 
 	bInputs bInputs;
@@ -56,5 +56,7 @@ void player_input_start(t_player* player, int key, bool start);
 inputValues getInputValues(unsigned int id);
 inputValues getInputValues1();
 inputValues getInputValues2();
+
+void player_damages(t_player* player, t_dynamicArray* players, unsigned int id);
 
 #endif

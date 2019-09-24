@@ -8,7 +8,7 @@ typedef struct
 {
     E_SIZE size;
     float delay;
-    unsigned int mineID;
+    //unsigned int mineID;
     vector2D location;
 
     int mineType;

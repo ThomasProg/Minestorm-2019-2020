@@ -11,9 +11,37 @@
 #include "string/string_utilities.h"
 #include "macros.h"
 
-t_world* world_create(t_assets* assets)
+t_minesToSpawn minesToSpawn_create()
+{
+	t_minesToSpawn returned;
+	returned.floatingMine = 0;
+	returned.fireballMine = 0;
+	returned.magneticMine = 0;
+	returned.magneticFireballMine = 0;
+	return returned;
+}
+
+t_minesToSpawn minesToSpawn_getMax(unsigned int lvl)
+{
+	t_minesToSpawn returned = minesToSpawn_create();
+	returned.magneticFireballMine = (lvl / 8);
+	returned.fireballMine = (lvl / 4) - 4 * (lvl / 8);
+	returned.magneticMine = (lvl / 2) - 2 * (lvl / 4);
+	returned.floatingMine =  (lvl / 1) - 2 * (lvl / 2);
+
+	return returned;
+}
+
+t_world* world_create(t_assets* assets, unsigned int nbPlayers)
 {
     t_world* world = malloc(sizeof(t_world));
+
+	//world->maxMines     = minesToSpawn_getMax(1);
+	world->currentPlayLevel  = 3;
+	world->minesBySize = malloc(NB_MINE_SIZES * sizeof(t_minesToSpawn));
+
+
+    world->spawnDelay   = 3.f;
 
 	TTF_Font* font 		  = font_get(assets->font, 0);
 	SDL_Rect rectScore    = {150, 0, 500, 500};
@@ -29,25 +57,26 @@ t_world* world_create(t_assets* assets)
 	world->widgets.scoreTextBox2   = textbox_create("SCORE : ", rectScore, font);
 	world->widgets.lifeTextBox2    = textbox_create("LIFE : 3", rectLife, font);
 	world->widgets.gameOverTextBox = textbox_create("GAME OVER\n Click on escape to return to the menu", rectGameOver, font);
+	world->widgets.pauseTextBox    = textbox_create("PAUSE\n Press SPACE to resume", rectGameOver, font);
 
 	//init Players
-	dynamicArray_Init(&world->players, sizeof(t_player), NB_PLAYERS);
-	for (unsigned int i = 0; i < NB_PLAYERS; i++)
+	dynamicArray_Init(&world->players, sizeof(t_player), nbPlayers);
+	for (unsigned int i = 0; i < nbPlayers; i++)
 	{
 		t_player* player = dynamicArray_AddItem(&world->players);
 
 		player_init(player);
-		player->inputValues = getInputValues(i % NB_PLAYERS);
+		player->inputValues = getInputValues(i % nbPlayers);
 	}
 
 	dynamicArray_Init(&world->mines, sizeof(t_mine), 4);
 	dynamicArray_Init(&world->bullets, sizeof(t_bullet), 16);
-	dynamicArray_Init(&world->spawners, sizeof(t_spawner), 4);
+	dynamicArray_Init(&world->spawners, sizeof(t_spawner), 10);
 
 	world->isPaused = false;
 	world->debugMode = false;
 
-	newWorldLevel(world, 1);
+	//newWorldLevel(world, 1);
 
     return world;
 }
@@ -56,6 +85,8 @@ void world_destroy(t_world* world)
 {
 	textbox_destroy(world->widgets.gameOverTextBox);
 	free(world->widgets.gameOverTextBox);
+	textbox_destroy(world->widgets.pauseTextBox);
+	free(world->widgets.pauseTextBox);
 
 	textbox_destroy(world->widgets.lifeTextBox1);
 	free(world->widgets.lifeTextBox1);
@@ -83,30 +114,30 @@ void world_destroy(t_world* world)
 	dynamicArray_Destroy(&world->spawners);
 	dynamicArray_Destroy(&world->players);
 
+	free(world->minesBySize);
+
     free(world);
 }
 
 void newWorldLevel(t_world* world, unsigned int level)
 {
 	//set spawners
-	unsigned int nbSpawners = pow((level % 3), 1.1) + 2 + (level / 3);
-	nbSpawners = 5;
+	t_minesToSpawn mines = minesToSpawn_getMax(level);
+	unsigned int totalMines = (mines.floatingMine + mines.fireballMine 
+							+ mines.magneticMine + mines.magneticFireballMine)* 7;
 
 	t_spawner* spawner;
 
-	unsigned int randNum = rand() % 10;
-	float randNumCumulated = 1.0f + randNum / 10.f;
-
-	for (unsigned int i = 0; i < nbSpawners; i++)
+	for (unsigned int i = 0; i < totalMines; i++)
 	{
 		spawner = dynamicArray_AddItem(&world->spawners);
 		spawner->location = getRandomLocation();
 		spawner->size = BIG;
-		spawner->delay = randNumCumulated;
-		spawner->mineType = i % 4;
-		randNumCumulated += randNum * 2;
-		//spawner->size = 0.8f;
 	}
+
+	for (unsigned int i = 0; i < NB_MINE_SIZES - 1; i++)
+		world->minesBySize[i] = minesToSpawn_create();
+	world->minesBySize[NB_MINE_SIZES - 1] = minesToSpawn_getMax(world->currentPlayLevel);
 }
 
 void widgets_render(t_world* world, t_assets* assets, unsigned int playerID)
@@ -145,12 +176,10 @@ void widgets_render(t_world* world, t_assets* assets, unsigned int playerID)
 
 void world_render(t_world* world, t_assets* assets)
 {
-	if (dynamicArray_IsValidIndex(&world->players, 0))
+	if (world->players.nbItems > 0)
 		widgets_render(world, assets, 0);
-	if (dynamicArray_IsValidIndex(&world->players, 1))
-	{
+	if (world->players.nbItems > 1)
 		widgets_render(world, assets, 1);
-	}
 
 	for (unsigned int i = 0; dynamicArray_GetValidItemIndex(&world->mines, &i); i++)
 	{
@@ -185,7 +214,7 @@ void world_tick(t_world* world, float deltaTime)
 
 			t_bullet* bullet = dynamicArray_AddItem(&world->bullets);
 
-			bullet_init(bullet, bulletLocation, player->entity.velocity, player->entity.ref.unitI);
+			bullet_init(bullet, bulletLocation, player->entity.velocity, player->entity.ref.unitI, true);
 			player->bInputs.shoot = false;
 			player->lastShoot = SDL_GetTicks();
 		}
@@ -195,6 +224,28 @@ void world_tick(t_world* world, float deltaTime)
 	{
 		t_mine* mine = dynamicArray_GetItem(&world->mines, i);
 		mine_tick(mine, deltaTime);
+
+		//newTarget
+		for (unsigned int j = 0; dynamicArray_GetValidItemIndex(&world->players, &j); j++)
+		{
+			bool newTarget = false;
+
+			t_player* player = dynamicArray_GetItem(&world->players, j);
+			if (mine->target != NULL)
+			{
+				float distance = vectorSquareLength(substractVectors(
+								player->entity.ref.origin, mine->entity.ref.origin));
+				float currentDistance = vectorSquareLength(substractVectors(
+										mine->target->entity.ref.origin, mine->entity.ref.origin));
+				if (currentDistance > distance)
+					newTarget = true;
+			}
+			else 
+				newTarget = true;	
+
+			if (newTarget)
+				mine->target = player;
+		}
 	}
 
 	for (unsigned int i = 0; dynamicArray_GetValidItemIndex(&world->bullets, &i); i++)
@@ -256,12 +307,12 @@ void world_inputs(t_level* level, t_world* world)
 	}
 }
 
-t_bullet* bullets_polygon_collision(t_dynamicArray* bullets, polygon* polygon, unsigned int* bulletID)
+t_bullet* bullets_polygon_collision(t_dynamicArray* bullets, polygon* polygon, unsigned int* bulletID, bool isBullet)
 {
 	for (unsigned int k = 0; dynamicArray_GetValidItemIndex(bullets, &k); k++)
 	{
 		t_bullet* bullet = dynamicArray_GetItem(bullets, k);
-		if (circle_polgyon_collision(&bullet->collision, polygon))
+		if (bullet->isBullet == isBullet && circle_polgyon_collision(&bullet->collision, polygon))
 		{
 			if (bulletID != NULL)
 				*bulletID = k;
@@ -279,8 +330,9 @@ void world_collisions(t_world* world)
 	{
 		t_mine* mine = dynamicArray_GetItem(&world->mines, j);
 
+		//bullet collision
 		unsigned int bulletID = 0;
-		t_bullet* bullet = bullets_polygon_collision(&world->bullets, &mine->entity.worldCollider, &bulletID);
+		t_bullet* bullet = bullets_polygon_collision(&world->bullets, &mine->entity.worldCollider, &bulletID, true);
 		
 		if (bullet != NULL)
 		{
@@ -290,26 +342,36 @@ void world_collisions(t_world* world)
 			if (mine->throwFireballs)
 			{
 				vector2D bulletLocation = mine->entity.ref.origin;
-				bulletLocation = addVectors(bulletLocation, scaleVector(mine->entity.ref.unitI, 100.0 * 0.25 + 10));
+				//bulletLocation = addVectors(bulletLocation, scaleVector(mine->entity.ref.unitI, 100.0 * 0.25 + 10));
 
 				t_bullet* bullet = dynamicArray_AddItem(&world->bullets);
 
 				vector2D shootDirection = substractVectors(mine->target->entity.ref.origin, mine->entity.ref.origin);
 				
 				if (! floatIsNearlyEqual(vectorLength(shootDirection), 0, 0.001f))
-					bullet_init(bullet, bulletLocation, mine->entity.velocity, unitVector(shootDirection));
-
+					bullet_init(bullet, bulletLocation, mine->entity.velocity, unitVector(shootDirection), false);
 			}
 
 			if (mine->sizeType > SMALL)
 			{
-				t_spawner* spawner;
+				//t_spawner* spawner;
 				for (unsigned int i = 0; i < 2; i++)
 				{
-					spawner = dynamicArray_AddItem(&world->spawners);
-					spawner->location = getRandomLocation();
-					spawner->size = mine->sizeType - 1;
-					spawner->mineType = mine->throwFireballs + mine->followPlayer * 2;
+					unsigned int newSize = mine->sizeType - 1;
+					unsigned int currentID = mine->throwFireballs + 2 * mine->followPlayer;
+					if (currentID == 0)
+						world->minesBySize[newSize].floatingMine++;
+					if (currentID == 1)
+						world->minesBySize[newSize].magneticMine++;
+					if (currentID == 2)
+						world->minesBySize[newSize].fireballMine++;
+					if (currentID == 3)
+						world->minesBySize[newSize].magneticFireballMine++;
+					//spawner = dynamicArray_AddItem(&world->spawners);
+					//spawner->location = getRandomLocation();
+					//spawner->size = mine->sizeType - 1;
+					//spawner->mineType = mine->throwFireballs + mine->followPlayer * 2;
+					//spawner->delay = 1.f;
 				}
 			}
 
@@ -326,7 +388,17 @@ void world_collisions(t_world* world)
 	for (unsigned int i = 0; dynamicArray_GetValidItemIndex(&world->players, &i); i++)
 	{
 		t_player* player = dynamicArray_GetItem(&world->players, i);
-		
+
+		//fireball collision
+		unsigned int bulletID = 0;
+		t_bullet* bullet = bullets_polygon_collision(&world->bullets, &player->entity.worldCollider, &bulletID, false);	
+		if (bullet != NULL)
+		{
+			bullet_destroy(bullet);
+			dynamicArray_RemoveItem(&world->bullets, bulletID);
+			player_damages(player, &world->players, i);
+		}
+
 		for (unsigned int j = 0; dynamicArray_GetValidItemIndex(&world->mines, &j); j++)
 		{
 			t_mine* mine = dynamicArray_GetItem(&world->mines, j);
@@ -334,18 +406,29 @@ void world_collisions(t_world* world)
 			
 			if (polygon_polgyon_collision(&player->entity.worldCollider, &entity->worldCollider))
 			{
-				//player damage
-				if (player->life == 1)
+				player_damages(player, &world->players, i);
+			}
+		}
+	}
+
+	for (unsigned int i = 0; dynamicArray_GetValidItemIndex(&world->bullets, &i); i++)
+	{
+		t_bullet* bullet1 = dynamicArray_GetItem(&world->bullets, i);
+		for (unsigned int j = 0; dynamicArray_GetValidItemIndex(&world->bullets, &j); j++)
+		{
+			if (i != j)
+			{
+				t_bullet* bullet2 = dynamicArray_GetItem(&world->bullets, j);
+				if (bullet1->isBullet != bullet2->isBullet)
 				{
-					player_destroy(player);
-					dynamicArray_RemoveItem(&world->players, i);
+					if (circle_circle_collision(bullet1->collision, bullet2->collision))
+					{
+						bullet_destroy(bullet1);
+						dynamicArray_RemoveItem(&world->bullets, i);
+						bullet_destroy(bullet2);
+						dynamicArray_RemoveItem(&world->bullets, j);
+					}
 				}
-				else
-				{
-					entity_teleport(&player->entity);
-				}
-				if (player->life != 0)
-					player->life--;	
 			}
 		}
 	}
@@ -353,36 +436,88 @@ void world_collisions(t_world* world)
 
 void world_GameOver(t_world* world, t_level* level, SDL_Renderer* renderer)
 {
-	unsigned int playerID;
-	bool isOver = dynamicArray_GetValidItemIndex(&world->players, &playerID);
+	unsigned int playerID = 0;
+	bool isNotOver = dynamicArray_GetValidItemIndex(&world->players, &playerID);
 
-	if (!isOver)
+	if (world->isPaused)
+	{
+		textbox_render(renderer, world->widgets.pauseTextBox);
+	}
+	else if (!isNotOver)
 	{
 		textbox_render(renderer, world->widgets.gameOverTextBox);
 	}
+}
+
+unsigned int mines_readyToSpawn(t_minesToSpawn* mines)
+{
+	unsigned int mineType = 5;
+	if (mines->floatingMine > 0)
+	{
+		mineType = 0;
+		mines->floatingMine--;
+	}
+	else if (mines->fireballMine > 0)
+	{
+		mineType = 1;
+		mines->fireballMine--;
+	}
+	else if (mines->magneticMine > 0)
+	{
+		mineType = 2;
+		mines->magneticMine--;
+	}
+	else if (mines->magneticFireballMine > 0)
+	{
+		mineType = 3;
+		mines->magneticFireballMine--;
+	}
+	return mineType;
 }
 
 void world_loop(t_assets* assets, float deltaTime, t_level* level)
 {
     t_world* world = ((t_world*) (level->data));
 
-	//if (world->spawners.usedItems > 0)
+	world->spawnDelay -= deltaTime;
+
+	if (world->spawners.usedItems == 0 && world->mines.usedItems == 0)
+	{
+		newWorldLevel(world, world->currentPlayLevel);
+		world->currentPlayLevel++;
+		world->spawnDelay = 3.f;
+	}
+
 	for (unsigned int i = 0; dynamicArray_GetValidItemIndex(&world->spawners, &i); i++)
 	{
 		t_spawner* spawner = dynamicArray_GetItem(&world->spawners, i);
 
-		if (spawner->delay < 0)
+		if (world->spawnDelay < 0.f)
 		{
-			t_mine* mine = dynamicArray_AddItem(&world->mines);
-			mine_init(mine, spawner->mineType, spawner->location, spawner->size);
-			mine->target = dynamicArray_GetItem(&world->players, 0);
+			world->spawnDelay = 0.3f;
 
-			dynamicArray_RemoveItem(&world->spawners, i);
-			break;
+			unsigned int mineType = mines_readyToSpawn(&world->minesBySize[2]);
+			E_SIZE size = BIG;
+			if (mineType == 5)
+			{
+				mineType = mines_readyToSpawn(&world->minesBySize[1]);
+				size = MEDIUM;
+			}	
+			if (mineType == 5)
+			{
+				mineType = mines_readyToSpawn(&world->minesBySize[0]);
+				size = SMALL;
+			}	
+			if (mineType != 5)
+			{
+				t_mine* mine = dynamicArray_AddItem(&world->mines);
+				mine_init(mine, mineType, spawner->location, size);
+				dynamicArray_RemoveItem(&world->spawners, i);
+			}
 		}
 		else
 		{
-			spawner->delay -= deltaTime;
+			//draw spawner
 			int x1, y1, x2, y2;
 			x1 = spawner->location.x - 10;
 			y1 = spawner->location.y - 10;
@@ -399,12 +534,12 @@ void world_loop(t_assets* assets, float deltaTime, t_level* level)
 
 	world_inputs(level, world);
 
-	if (world->isPaused)
-		return;
+	if (! world->isPaused)
+	{
+		world_tick(world, deltaTime);
 
-	world_tick(world, deltaTime);
-
-	world_collisions(world);
+		world_collisions(world);
+	}
 
 	world_GameOver(world, level, assets->render->renderer);
 }

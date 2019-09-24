@@ -10,15 +10,16 @@ t_menu* menu_create(t_assets* assets)
     t_menu* menu = malloc(sizeof(t_menu));
 
 	SDL_Rect rect;
-	rect.x = 10;
-	rect.y = 10;
+	rect.x = WINDOW_SIZE_X / 2;
+	rect.y = 60;
 	rect.w = 100;
 	rect.h = 100;
 	
-	menu->button = button_init(render_get(assets->render, 0), rect);
+	menu->button = button_init(render_get(assets->render, 0), rect, (SDL_Rect){0, 0, 100, 100});
 
+	rect.y = 10;
 	TTF_Font* font = font_get(assets->font, 0);
-	menu->textbox = textbox_create("YOP / will not render", rect, font);
+	menu->textbox = textbox_create("MENU", rect, font);
 
     return menu;
 }
@@ -69,8 +70,15 @@ void menu_inputs(t_level* level, t_menu* menu)
 		if (event.type == SDL_KEYDOWN) //press
 		{
 			int key = event.key.keysym.sym;
-			if (key == SDLK_SPACE)
+
+			if (key == SDLK_f)
+			{
 				level_modifySafe(level, E_PLAY);
+			}
+			if (key == SDLK_k)
+			{
+				level_modifySafe(level, E_PLAY2);	
+			}
 
 			if (key == SDLK_ESCAPE)
 				level_modifySafe(level, E_QUIT);

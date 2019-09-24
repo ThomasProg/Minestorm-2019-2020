@@ -13,8 +13,6 @@ typedef enum
 {
 	E_PLAYER = 0,
 	E_MINE = 1,
-	E_FLOATING_MINE = 2,
-	E_MAGNETIC_MINE
 } E_COLLISION_TYPE;
 
 typedef enum 
