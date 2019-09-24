@@ -4,21 +4,6 @@
 #include <entities/entities.h>
 #include "entities/player.h"
 
-// typedef struct s_player
-// {
-    
-//     t_entity entity;
-
-// } t_mines;
-
-// typedef enum
-// {
-//     FLOATING_MINE = 0,
-//     MAGNETIC_MINE,
-//     FIREBALL_MINE,
-//     MAGNETIC_FIREBALL_MINE
-// } E_MINE;
-
 typedef enum 
 {
     SMALL = 0,

@@ -1,7 +1,7 @@
 #ifndef _MACROS_H_
 #define _MACROS_H_
 
-#define WINDOW_SCALE 0.7
+#define WINDOW_SCALE 0.4
 
 //window
 #define WINDOW_SIZE_X 1500 * WINDOW_SCALE
@@ -23,8 +23,9 @@
 #define SHIP_SIZE 0.25f * WINDOW_SCALE
 
 //Mines stats
-#define FLOATING_MINE_VELOCITY {100.1f, 30.3f}
-#define MAGNETIC_MINE_SPEED 125.f
+//#define FLOATING_MINE_VELOCITY {100.1f, 30.3f}
+#define FLOATING_MINE_SPEED 80.f
+#define MAGNETIC_MINE_SPEED 80.f
 #define NB_MINE_SIZES 3
 
 //Bullets stats

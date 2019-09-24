@@ -152,6 +152,12 @@ void mine_init(t_mine* mine, unsigned int type, vector2D location, E_SIZE sizeTy
 		}
 	}
 
+	vector2D velocity = {rand() % 100 - 50, rand() % 100 - 50};
+	if (velocity.x == 0.f && velocity.y == 0.f)
+	    velocity.x = 1.f;
+	velocity = unitVector(velocity);
+        mine->entity.velocity = scaleVector(velocity, 1 / mine->size * FLOATING_MINE_SPEED);
+
     mine->entity.ref.origin = location;
 	mine->entity.collisionType = E_MINE;
     mine->target = NULL;
@@ -209,12 +215,19 @@ void mine_tick(t_mine* mine, float deltaTime)
                 direction = unitVector(shortestPath);
                 mine->entity.ref.unitI = direction;
                 mine->entity.ref.unitJ = rotateVector90(mine->entity.ref.unitI);
-                //mine->entity.velocity = addVectors(mine->entity.velocity, scaleVector(direction, MAGNETIC_MINE_SPEED));
                 entity_move(&mine->entity, E_FORWARD, deltaTime);
             }
             mine->entity.maxSpeed = MAGNETIC_MINE_SPEED;
         }
     }
+    
     else
-        mine->entity.velocity = scaleVector((vector2D) FLOATING_MINE_VELOCITY, 1 / mine->size / 4.f);
+    {/*
+	    vector2D velocity = {rand() % 100 - 50, rand() % 100 - 50};
+	    if (velocity.x == 0.f && velocity.y == 0.f)
+		    velocity.x = 1.f;
+	    velocity = unitVector(velocity);*/
+
+        mine->entity.velocity = scaleVector(unitVector(mine->entity.velocity), 1 / mine->size * FLOATING_MINE_SPEED);
+    }
 }
