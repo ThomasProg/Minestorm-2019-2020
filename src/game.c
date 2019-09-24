@@ -3,9 +3,6 @@
 #include "SDL_utilities/SDL_utilities.h"
 #include "entities/entities.h"
 #include "entities/player.h"
-#include "entities/mines_subtype/floating_mine.h"
-#include "entities/mines_subtype/magnetic_mine.h"
-#include "entities/mines_subtype/fireball_mine.h"
 #include "entities/bullets.h"
 #include "vector2D/collisions2D.h"
 

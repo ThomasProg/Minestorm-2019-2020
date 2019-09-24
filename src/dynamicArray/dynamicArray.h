@@ -22,6 +22,7 @@ void* dynamicArray_AddItem(t_dynamicArray* array);
 void  dynamicArray_RemoveItem(t_dynamicArray* array, unsigned int index);
 void* dynamicArray_GetItem(t_dynamicArray* array, unsigned int index);
 void  dynamicArray_Destroy(t_dynamicArray* array);
+bool dynamicArray_IsValidIndex(t_dynamicArray* array, unsigned int index);
 void  dynamicArray_RemoveRange(t_dynamicArray* array, unsigned int first, unsigned int lastPlusOne);
 
 bool dynamicArray_GetValidItemIndex(t_dynamicArray* array, unsigned int* i);

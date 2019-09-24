@@ -8,7 +8,7 @@
 
 void axisAlignedRectangle_render(SDL_Renderer* renderer, axisAlignedRectangle rectangle);
 
-void convexPolygon_render(SDL_Renderer* renderer, convexPolygon polygon, referential* ref);
-void polygon_render(SDL_Renderer* renderer, polygon* polygons, referential* ref);
+void convexPolygon_render(SDL_Renderer* renderer, convexPolygon polygon, bool renderAABB);
+void polygon_render(SDL_Renderer* renderer, polygon* polygons, bool renderAABB);
 
 #endif

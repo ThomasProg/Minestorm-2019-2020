@@ -1,9 +1,3 @@
-#include <assert.h>
-
-#include "entities/mines_subtype/floating_mine.h"
-#include "entities/mines_subtype/magnetic_mine.h"
-#include "entities/mines_subtype/fireball_mine.h"
-
 #include "mines.h"
 #include "macros.h"
 
@@ -173,7 +167,7 @@ void mine_init(t_mine* mine, unsigned int type, vector2D location, E_SIZE sizeTy
             }
             break;
         default :
-            assert(false); //no mine of this id exists
+            //assert(false); //no mine of this id exists
             break;
     }
 
@@ -203,18 +197,18 @@ void mine_init(t_mine* mine, unsigned int type, vector2D location, E_SIZE sizeTy
 
 void mine_destroy(t_mine* mine)
 {
-
+    polygon_free(mine->entity.collision);
+    free(mine->entity.collision);
+    polygon_free(&mine->entity.worldCollider);
 }
 
-void mine_render(t_mine* mine, t_render* render)
+void mine_render(t_mine* mine, t_render* render, bool renderDebug)
 {
-    entity_render(&mine->entity, render);
-    polygon_render(render->renderer, &mine->entity.worldCollider, &mine->entity.ref);
-    
-    //player->entity.aabb = aabbRectangleGenerate(collision->leftSide.points, 4);
-    // axisAlignedRectangle rec = aabbRectangleGenerate(collision->leftSide.points, 4);
-    // rec.center = addVectors(rec.center, mine->entity.ref.origin); 
-    // axisAlignedRectangle_render(render->renderer, mine->entity.aabb);
+    entity_render(&mine->entity, render, renderDebug);
+
+    polygon_aabb_generate(&mine->entity.worldCollider);
+
+    polygon_render(render->renderer, &mine->entity.worldCollider, renderDebug);
 }
 
 vector2D getShortestPath(vector2D a, vector2D b)

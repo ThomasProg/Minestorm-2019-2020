@@ -101,3 +101,10 @@ bool dynamicArray_GetValidItemIndex(t_dynamicArray* array, unsigned int* i)
 
     return true;
 }
+
+bool dynamicArray_IsValidIndex(t_dynamicArray* array, unsigned int index)
+{
+    if (index > array->nbItems)
+        return false;
+    return array->isUsed[index];
+}

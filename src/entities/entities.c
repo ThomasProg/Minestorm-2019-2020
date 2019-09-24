@@ -38,7 +38,7 @@ void entity_destroy(t_entity* entity)
 		free(entity->texture);
 }
 
-void entity_render(t_entity* entity, t_render* render)
+void entity_render(t_entity* entity, t_render* render, bool renderDebug)
 {
 	if (entity->worldCollider.convexPolygons != NULL)
 	{
@@ -51,6 +51,18 @@ void entity_render(t_entity* entity, t_render* render)
 
 	polygon* poly = entity->collision;
 	entity->worldCollider = localToWorld_polygon(poly, entity->ref);
+
+	//render referential
+	if (renderDebug)
+	{
+		point2D center = entity->ref.origin;
+		point2D iAxis = addVectors(center, scaleVector(entity->ref.unitI, 50));
+		point2D jAxis = addVectors(center, scaleVector(entity->ref.unitJ, 50));
+		SDL_SetRenderDrawColor(render->renderer, 0, 0, 255, 255);
+		SDL_RenderDrawLine(render->renderer, center.x, center.y, iAxis.x, iAxis.y);
+		SDL_SetRenderDrawColor(render->renderer, 0, 255, 0, 255);
+		SDL_RenderDrawLine(render->renderer, center.x, center.y, jAxis.x, jAxis.y);
+	}
 }
 
 float airFriction(float value, float friction)

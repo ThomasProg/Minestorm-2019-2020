@@ -34,12 +34,6 @@ void textbox_setText(t_textbox* textbox, const char* newStr)
 
 void textbox_render(SDL_Renderer* renderer, t_textbox* textbox)
 {
-    //TTF_Font* font = TTF_OpenFont("media/font.ttf", 20);
-    // if (font == NULL)
-    // {
-    //     return;
-    // }
-
     SDL_Color white = {255, 255, 255, 0};
 
     SDL_Surface* surfaceMess = TTF_RenderText_Solid(textbox->font, textbox->str, white);
@@ -47,7 +41,7 @@ void textbox_render(SDL_Renderer* renderer, t_textbox* textbox)
 
     SDL_FreeSurface(surfaceMess);
 
-    SDL_Rect rect = {WINDOW_SIZE_X/2, 0, 100, 100};
+    SDL_Rect rect = {textbox->location.x, textbox->location.y, 100, 100};
 
     TTF_SizeText(textbox->font, textbox->str, &rect.w, &rect.h);
 

@@ -4,10 +4,6 @@
 #include "SDL_utilities/SDL_utilities.h"
 #include "dynamicArray/dynamicArray.h"
 
-#include "entities/mines_subtype/floating_mine.h"
-#include "entities/mines_subtype/magnetic_mine.h"
-#include "entities/mines_subtype/fireball_mine.h"
-
 #include "entities/mines.h"
 #include "entities/spawner.h"
 #include "entities/player.h"
@@ -23,8 +19,13 @@ typedef struct
     t_button* menuButton;
     t_button* pauseButton;
 
-    t_textbox* scoreTextBox;
-    t_textbox* lifeTextBox;
+    t_textbox* scoreTextBox1;
+    t_textbox* lifeTextBox1;
+
+    t_textbox* scoreTextBox2;
+    t_textbox* lifeTextBox2;
+    
+    t_textbox* gameOverTextBox;
 } t_widgets;
 
 typedef struct 
@@ -36,6 +37,7 @@ typedef struct
     t_dynamicArray bullets;
 
     bool isPaused;
+    bool debugMode;
 
     t_widgets widgets;
 } t_world;

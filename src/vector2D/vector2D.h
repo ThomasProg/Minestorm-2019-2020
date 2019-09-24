@@ -26,12 +26,6 @@ typedef struct
 typedef struct
 {
 	point2D center;
-	decimal length;
-} circle;
-
-typedef struct
-{
-	point2D center;
 	vector2D halfSize; //half height, half width 
 } axisAlignedRectangle;
 
@@ -40,6 +34,13 @@ typedef struct
 	axisAlignedRectangle rectangle;
 	decimal angle;
 } orientedRectangle;
+
+typedef struct
+{
+	point2D center;
+	decimal length;
+	//axisAlignedRectangle aabb;
+} circle;
 
 typedef struct
 {
@@ -112,5 +113,8 @@ bool rangeIntersect(range range1, range range2);
 
 axisAlignedRectangle aabbRectangleGenerate(point2D* points, unsigned int size);
 axisAlignedRectangle fuseAxisAlignedRectangles(axisAlignedRectangle a, axisAlignedRectangle b);
+
+void polygon_free(polygon* polygon);
+void polygon_aabb_generate(polygon* polygon1);
 
 #endif

@@ -4,9 +4,6 @@
 #include "world.h"
 #include "entities/entities.h"
 #include "entities/player.h"
-#include "entities/mines_subtype/floating_mine.h"
-#include "entities/mines_subtype/magnetic_mine.h"
-#include "entities/mines_subtype/fireball_mine.h"
 #include "entities/spawner.h"
 #include "worldField.h"
 #include "entities/bullets.h"
@@ -18,18 +15,29 @@ t_world* world_create(t_assets* assets)
 {
     t_world* world = malloc(sizeof(t_world));
 
-	TTF_Font* font = font_get(assets->font, 0);
-	SDL_Rect rect = {50, 50, 500, 500};
-	world->widgets.scoreTextBox = textbox_create("SCORE : ", rect, font);
+	TTF_Font* font 		  = font_get(assets->font, 0);
+	SDL_Rect rectScore    = {150, 0, 500, 500};
+	SDL_Rect rectLife     = {150, 40, 500, 500};
+	SDL_Rect rectGameOver = {WINDOW_SIZE_X/2, 150, 500, 500};
+
+	world->widgets.scoreTextBox1 = textbox_create("SCORE : ", rectScore, font);
+	world->widgets.lifeTextBox1  = textbox_create("LIFE : 3", rectLife, font);
+
+	rectScore.x = WINDOW_SIZE_X - 150;  
+	rectLife.x  = WINDOW_SIZE_X - 150;
+
+	world->widgets.scoreTextBox2   = textbox_create("SCORE : ", rectScore, font);
+	world->widgets.lifeTextBox2    = textbox_create("LIFE : 3", rectLife, font);
+	world->widgets.gameOverTextBox = textbox_create("GAME OVER\n Click on escape to return to the menu", rectGameOver, font);
 
 	//init Players
-	dynamicArray_Init(&world->players, sizeof(t_player), 2);
-	for (unsigned int i = 0; i < 2; i++)
+	dynamicArray_Init(&world->players, sizeof(t_player), NB_PLAYERS);
+	for (unsigned int i = 0; i < NB_PLAYERS; i++)
 	{
 		t_player* player = dynamicArray_AddItem(&world->players);
 
 		player_init(player);
-		player->inputValues = getInputValues(i % 2);
+		player->inputValues = getInputValues(i % NB_PLAYERS);
 	}
 
 	dynamicArray_Init(&world->mines, sizeof(t_mine), 4);
@@ -37,6 +45,7 @@ t_world* world_create(t_assets* assets)
 	dynamicArray_Init(&world->spawners, sizeof(t_spawner), 4);
 
 	world->isPaused = false;
+	world->debugMode = false;
 
 	newWorldLevel(world, 1);
 
@@ -45,18 +54,31 @@ t_world* world_create(t_assets* assets)
 
 void world_destroy(t_world* world)
 {
-	textbox_destroy(world->widgets.scoreTextBox);
-	free(world->widgets.scoreTextBox);
+	textbox_destroy(world->widgets.gameOverTextBox);
+	free(world->widgets.gameOverTextBox);
+
+	textbox_destroy(world->widgets.lifeTextBox1);
+	free(world->widgets.lifeTextBox1);
+	textbox_destroy(world->widgets.scoreTextBox1);
+	free(world->widgets.scoreTextBox1);
+
+	textbox_destroy(world->widgets.lifeTextBox2);
+	free(world->widgets.lifeTextBox2);
+	textbox_destroy(world->widgets.scoreTextBox2);
+	free(world->widgets.scoreTextBox2);
+
+	for (unsigned int i = 0; dynamicArray_GetValidItemIndex(&world->mines, &i); i++)
+	{
+		mine_destroy(dynamicArray_GetItem(&world->mines, i));
+	}
 
 	dynamicArray_Destroy(&world->mines);
-	//dynamicArray_Destroy(&world->floatingMines);
-	//dynamicArray_Destroy(&world->magneticMines);
-	//dynamicArray_Destroy(&world->fireballMines);
 
 	for (unsigned int i = 0; dynamicArray_GetValidItemIndex(&world->players, &i); i++)
 	{
 		player_destroy(dynamicArray_GetItem(&world->players, i));
 	}
+
 	dynamicArray_Destroy(&world->bullets);
 	dynamicArray_Destroy(&world->spawners);
 	dynamicArray_Destroy(&world->players);
@@ -73,7 +95,7 @@ void newWorldLevel(t_world* world, unsigned int level)
 	t_spawner* spawner;
 
 	unsigned int randNum = rand() % 10;
-	float randNumCumulated = 5.0f + randNum / 10.f;
+	float randNumCumulated = 1.0f + randNum / 10.f;
 
 	for (unsigned int i = 0; i < nbSpawners; i++)
 	{
@@ -87,24 +109,59 @@ void newWorldLevel(t_world* world, unsigned int level)
 	}
 }
 
+void widgets_render(t_world* world, t_assets* assets, unsigned int playerID)
+{
+	{
+		t_player* player = dynamicArray_GetItem(&world->players, playerID);
+		char* score = int_to_alpha(player->score);
+		char* str = string_append("SCORE : ", score);
+		t_textbox* textbox;
+		if (playerID == 0)
+			textbox = world->widgets.scoreTextBox1;
+		else
+			textbox = world->widgets.scoreTextBox2;
+		
+		free(score);
+		textbox_setText(textbox, str);
+		free(str);
+		textbox_render(assets->render->renderer, textbox);
+	}
+	{
+		t_player* player = dynamicArray_GetItem(&world->players, playerID);
+		char* life = int_to_alpha(player->life);
+		char* str = string_append("LIFE : ", life);
+		t_textbox* textbox;
+		if (playerID == 0)
+			textbox = world->widgets.lifeTextBox1;
+		else
+			textbox = world->widgets.lifeTextBox2;
+
+		free(life);
+		textbox_setText(textbox, str);
+		free(str);
+		textbox_render(assets->render->renderer, textbox);
+	}
+}
+
 void world_render(t_world* world, t_assets* assets)
 {
-	t_player* player = dynamicArray_GetItem(&world->players, 0);
-	char* str = string_append("SCORE : ", int_to_alpha(player->score));
-	textbox_setText(world->widgets.scoreTextBox, str);
-	free(str);
-	textbox_render(assets->render->renderer, world->widgets.scoreTextBox);
+	if (dynamicArray_IsValidIndex(&world->players, 0))
+		widgets_render(world, assets, 0);
+	if (dynamicArray_IsValidIndex(&world->players, 1))
+	{
+		widgets_render(world, assets, 1);
+	}
 
 	for (unsigned int i = 0; dynamicArray_GetValidItemIndex(&world->mines, &i); i++)
 	{
 		t_mine* mine = dynamicArray_GetItem(&world->mines, i);
-		mine_render(mine, assets->render);
+		mine_render(mine, assets->render, world->debugMode);
 	}
 
 	for (unsigned int i = 0; dynamicArray_GetValidItemIndex(&world->players, &i); i++)
 	{
 		t_player* player = dynamicArray_GetItem(&world->players, i);
-		player_render(player, assets->render);
+		player_render(player, assets->render, world->debugMode);
 	}
 
 	for (unsigned int i = 0; dynamicArray_GetValidItemIndex(&world->bullets, &i); i++)
@@ -121,7 +178,7 @@ void world_tick(t_world* world, float deltaTime)
 		t_player* player = dynamicArray_GetItem(&world->players, i);
 		player_tick(player, deltaTime);
 
-		if (player->bInputs.shoot)
+		if (player->bInputs.shoot && SDL_GetTicks() - player->lastShoot > SHOOT_INTERVAL)
 		{
 			vector2D bulletLocation = player->entity.ref.origin;
 			bulletLocation = addVectors(bulletLocation, scaleVector(player->entity.ref.unitI, 100.0 * 0.25 + 10));
@@ -130,6 +187,7 @@ void world_tick(t_world* world, float deltaTime)
 
 			bullet_init(bullet, bulletLocation, player->entity.velocity, player->entity.ref.unitI);
 			player->bInputs.shoot = false;
+			player->lastShoot = SDL_GetTicks();
 		}
 	}
 
@@ -166,7 +224,10 @@ void world_inputs(t_level* level, t_world* world)
 			if (key == SDLK_SPACE)
 			{
 				world->isPaused = !world->isPaused;
-				break;
+			}
+			if (key == SDLK_c)
+			{
+				world->debugMode = !world->debugMode;
 			}
 
 			if (key == SDLK_ESCAPE)
@@ -273,13 +334,31 @@ void world_collisions(t_world* world)
 			
 			if (polygon_polgyon_collision(&player->entity.worldCollider, &entity->worldCollider))
 			{
-				fprintf(stderr, "OOH WILFRE!\n");
-			}
-			else
-			{
-				fprintf(stderr, "no collision !\n");
+				//player damage
+				if (player->life == 1)
+				{
+					player_destroy(player);
+					dynamicArray_RemoveItem(&world->players, i);
+				}
+				else
+				{
+					entity_teleport(&player->entity);
+				}
+				if (player->life != 0)
+					player->life--;	
 			}
 		}
+	}
+}
+
+void world_GameOver(t_world* world, t_level* level, SDL_Renderer* renderer)
+{
+	unsigned int playerID;
+	bool isOver = dynamicArray_GetValidItemIndex(&world->players, &playerID);
+
+	if (!isOver)
+	{
+		textbox_render(renderer, world->widgets.gameOverTextBox);
 	}
 }
 
@@ -326,4 +405,6 @@ void world_loop(t_assets* assets, float deltaTime, t_level* level)
 	world_tick(world, deltaTime);
 
 	world_collisions(world);
+
+	world_GameOver(world, level, assets->render->renderer);
 }

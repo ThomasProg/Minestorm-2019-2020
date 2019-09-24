@@ -29,6 +29,7 @@ void bullet_render(SDL_Renderer* renderer, t_bullet* bullet, unsigned int nbLine
     float radius = bullet->collision.length;//radius
     float toAdd = 2 * PI / nbLines;
     float loc = 0.f;
+    SDL_SetRenderDrawColor(renderer, 255, 255, 0, 255);
     for (unsigned int i = 0; i < nbLines; i++)
     {  
         SDL_RenderDrawLine(renderer, origin.x + radius * cosf(loc + toAdd), origin.y + radius * sinf(loc + toAdd), 

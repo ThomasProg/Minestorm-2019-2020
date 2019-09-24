@@ -383,6 +383,9 @@ bool convexPolygon_convexPolygon_SAT(convexPolygon convexPolygon1, convexPolygon
 //SAT algorithm
 bool convexPolygon_convexPolygon_collision(convexPolygon convexPolygon1, convexPolygon convexPolygon2)
 {
+	if (! axisAlignedRectangle_axisAlignedRectangle_collision(convexPolygon1.aabb, convexPolygon2.aabb))
+		return false;
+
 	return (convexPolygon_convexPolygon_SAT(convexPolygon1, convexPolygon2)
 		&& convexPolygon_convexPolygon_SAT(convexPolygon2, convexPolygon1));
 }
@@ -404,6 +407,9 @@ bool circle_polgyon_collision(circle* circle1, polygon* polygon1)
 
 bool polygon_polgyon_collision(polygon* poly1, polygon* poly2)
 {
+	if (! axisAlignedRectangle_axisAlignedRectangle_collision(poly1->aabb, poly2->aabb))
+		return false;
+
 	unsigned int i = 0;
 	unsigned int j = 0;
 	//opti ?

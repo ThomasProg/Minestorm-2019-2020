@@ -1,28 +1,38 @@
+#include <stdbool.h>
 #include "renderShapes.h"
 #include "vector2D/collisions2D.h"
 
-void convexPolygon_render(SDL_Renderer* renderer, convexPolygon polygon, referential* ref)
+void convexPolygon_render(SDL_Renderer* renderer, convexPolygon convex, bool renderAABB)
 {
-	SDL_SetRenderDrawColor(renderer, 255, 255, 0, 255);
-
-	for (unsigned i = 0; i < polygon.size; i++)
+	for (unsigned i = 0; i < convex.size; i++)
 	{
-		unsigned int j = (i + 1) % polygon.size;
+		unsigned int j = (i + 1) % convex.size;
 
-		point2D a = polygon.points[i];
-		point2D b = polygon.points[j];
-		//point2D a = localToWorld_point2D(polygon.points[i], *ref);
-		//point2D b = localToWorld_point2D(polygon.points[j], *ref);
+		point2D a = convex.points[i];
+		point2D b = convex.points[j];
 
+		SDL_SetRenderDrawColor(renderer, 255, 255, 0, 255);
 		SDL_RenderDrawLine(renderer, a.x, a.y, b.x, b.y);
+		
+		if (renderAABB)
+		{
+			SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
+			axisAlignedRectangle_render(renderer, convex.aabb);
+		}
 	}
 }
 
-void polygon_render(SDL_Renderer* renderer, polygon* polygons, referential* ref)
+void polygon_render(SDL_Renderer* renderer, polygon* polygon, bool renderAABB)
 {
-    for (unsigned int i = 0; i < polygons->nbConvexPolygons; i++)
+    for (unsigned int i = 0; i < polygon->nbConvexPolygons; i++)
     {
-        convexPolygon_render(renderer, polygons->convexPolygons[i], ref);
+        convexPolygon_render(renderer, polygon->convexPolygons[i], renderAABB);
+		
+		if (renderAABB)
+		{
+			SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
+			axisAlignedRectangle_render(renderer, polygon->aabb);
+		}
     }
 }
 

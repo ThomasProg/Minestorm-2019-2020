@@ -102,8 +102,9 @@ void player_init(t_player* player)
     player_collision_init(player->entity.collision);
 	player->entity.collisionType = E_PLAYER;
 
-	player->life = 0;
+	player->life = 3;
 	player->score = 0;
+	player->lastShoot = 0;
 
 	player->bInputs = bInput_create();
 }
@@ -116,33 +117,17 @@ void player_destroy(t_player* player)
 	}
 
 	dynamicArray_Destroy(&player->bullets);
+
+    polygon_free(player->entity.collision);
+	free(player->entity.collision);
+    polygon_free(&player->entity.worldCollider);
 }
 
-void player_render(t_player* player, t_render* render)
+void player_render(t_player* player, t_render* render, bool renderDebug)
 {
-    entity_render(&player->entity, render);
-    polygon_render(render->renderer, &player->entity.worldCollider, &player->entity.ref);
-
-	// for (unsigned int i = 0; dynamicArray_GetValidItemIndex(&player->bullets, &i); i++)
-	// {
-	// 	bullet_render(render->renderer, dynamicArray_GetItem(&player->bullets, i), BULLETS_PRECISION);
-	// }
-
-    //printf("x : %f y : %f\n", player->entity.ref.origin.x, player->entity.ref.origin.y);
-	//printf("x : %f y : %f\n", player->entity.velocity.x, player->entity.velocity.y);
-
-	polygon* polygon = &player->entity.worldCollider;
-	point2D* points = (polygon->convexPolygons[0]).points;//, polygon->convexPolygons->size);
-    polygon->convexPolygons[0].aabb = aabbRectangleGenerate(points, polygon->convexPolygons[0].size);
-    axisAlignedRectangle_render(render->renderer, polygon->convexPolygons[0].aabb);
-
-	polygon = &player->entity.worldCollider;
-	points = (polygon->convexPolygons[1]).points;//, polygon->convexPolygons->size);
-    polygon->convexPolygons[1].aabb = aabbRectangleGenerate(points, polygon->convexPolygons[1].size);
-    axisAlignedRectangle_render(render->renderer, polygon->convexPolygons[1].aabb);
-
-	polygon->aabb = fuseAxisAlignedRectangles(polygon->convexPolygons[0].aabb, polygon->convexPolygons[1].aabb);
-	axisAlignedRectangle_render(render->renderer, polygon->aabb);
+    entity_render(&player->entity, render, renderDebug);
+	polygon_aabb_generate(&player->entity.worldCollider);
+    polygon_render(render->renderer, &player->entity.worldCollider, renderDebug);
 }
 
 void player_tick(t_player* player, float deltaTime)

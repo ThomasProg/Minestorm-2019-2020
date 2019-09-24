@@ -43,7 +43,7 @@ typedef struct s_mine
 void mine_init(t_mine* mine, unsigned int type, vector2D location, E_SIZE sizeType);//float size);
 void mine_destroy(t_mine* mine);
 
-void mine_render(t_mine* mine, t_render* render);
+void mine_render(t_mine* mine, t_render* render, bool renderDebug);
 
 void mine_tick(t_mine* mine, float deltaTime);
 

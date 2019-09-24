@@ -42,7 +42,7 @@ typedef struct s_entity
 t_entity* entity_create();
 void entity_init(t_entity* entity);
 
-void entity_render(t_entity* entity, t_render* render);
+void entity_render(t_entity* entity, t_render* render, bool renderDebug);
 
 void entity_tick(t_entity* entity, float deltaTime);
 

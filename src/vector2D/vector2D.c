@@ -1,5 +1,6 @@
 #include "vector2D.h"
 #include <math.h>
+#include <stdlib.h>
 #include <assert.h>
 
 vector2D nullVector()
@@ -153,10 +154,6 @@ bool rangeIntersect(range range1, range range2)
 axisAlignedRectangle aabbRectangleGenerate(point2D* points, unsigned int size)
 {
 	axisAlignedRectangle rect;
-	//if (/*points != NULL ||*/ size == 0)
-	//{
-	//	return rect;//assert() //TODO ERROR
-	//}
 
 	vector2D min = points[0];
 	vector2D max = min;
@@ -179,6 +176,16 @@ axisAlignedRectangle aabbRectangleGenerate(point2D* points, unsigned int size)
 	rect.center.y = min.y + rect.halfSize.y;
 	return rect;
 }
+
+// axisAlignedRectangle circleToAxisAlignedRectangle(circle* circle1)
+// {
+// 	axisAlignedRectangle rect;
+
+// 	rect.halfSize.x = circle1->length;
+// 	rect.halfSize.y = circle1->length;
+// 	rect.center = circle1->center;
+// 	return rect;
+// }
 
 axisAlignedRectangle fuseAxisAlignedRectangles(axisAlignedRectangle a, axisAlignedRectangle b)
 {
@@ -205,4 +212,28 @@ axisAlignedRectangle fuseAxisAlignedRectangles(axisAlignedRectangle a, axisAlign
 	returned.halfSize.y = (rangeY.max - rangeY.min) / 2;
 
 	return returned;
+}
+
+void polygon_free(polygon* polygon1)
+{
+	for (unsigned int i = 0; i < polygon1->nbConvexPolygons; i++)
+		free(polygon1->convexPolygons[i].points);
+
+	free(polygon1->convexPolygons);
+	//free(polygon);
+}
+
+void polygon_aabb_generate(polygon* polygon1)
+{
+	convexPolygon* convex = &polygon1->convexPolygons[0];
+    convex->aabb = aabbRectangleGenerate(convex->points, convex->size);
+
+	polygon1->aabb = convex->aabb; 
+	
+	for (unsigned int i = 1; i < polygon1->nbConvexPolygons; i++)
+	{
+		convex = &polygon1->convexPolygons[i];
+    	convex->aabb = aabbRectangleGenerate(convex->points, convex->size);
+		polygon1->aabb = fuseAxisAlignedRectangles(polygon1->aabb, convex->aabb);
+	}
 }
