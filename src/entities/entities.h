@@ -24,6 +24,7 @@ typedef enum
 
 typedef struct s_entity
 {
+	bool isTeleportingAtBorder;
 	float maxSpeed;
 
 	vector2D velocity;

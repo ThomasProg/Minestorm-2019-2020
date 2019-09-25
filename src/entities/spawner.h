@@ -14,5 +14,6 @@ typedef struct
     int mineType;
 } t_spawner;
 
+void spawner_render(SDL_Renderer* renderer, t_spawner* spawner1);
 
 #endif

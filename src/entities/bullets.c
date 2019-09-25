@@ -17,7 +17,7 @@ void bullet_init(t_bullet* bullet, vector2D location,
     bullet->timeAlive = 0.f;
     bullet->isBullet = isBullet;
 
-    bullet->velocity = addVectors(scaleVector(shootDirection, BULLET_SPEED), relativeVelocity); //add velocity at shooting
+    bullet->velocity = scaleVector(shootDirection, BULLET_SPEED); //add velocity at shooting
 }
 
 void bullet_destroy(t_bullet* bullet)
@@ -31,7 +31,7 @@ void bullet_render(SDL_Renderer* renderer, t_bullet* bullet, unsigned int nbLine
     float radius = bullet->collision.length;//radius
     float toAdd = 2 * PI / nbLines;
     float loc = 0.f;
-    SDL_SetRenderDrawColor(renderer, 255, 255, 0, 255);
+    SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
     for (unsigned int i = 0; i < nbLines; i++)
     {  
         SDL_RenderDrawLine(renderer, origin.x + radius * cosf(loc + toAdd), origin.y + radius * sinf(loc + toAdd), 

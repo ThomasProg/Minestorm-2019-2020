@@ -15,6 +15,8 @@ typedef struct s_mine
 {
     bool followPlayer;
     bool throwFireballs;
+    bool isMineLayer;
+    float mineLayerDelay;
 
     E_SIZE sizeType;
     float size; 

@@ -102,9 +102,10 @@ void player_init(t_player* player)
     player_collision_init(player->entity.collision);
 	player->entity.collisionType = E_PLAYER;
 
-	player->life = 3;
+	player->life = PLAYER_LIFE;
 	player->score = 0;
 	player->lastShoot = 0;
+	player->nextTeleportationDelay = 0.f;
 
 	player->bInputs = bInput_create();
 }
@@ -120,6 +121,7 @@ void player_render(t_player* player, t_render* render, bool renderDebug)
 {
     entity_render(&player->entity, render, renderDebug);
 	polygon_aabb_generate(&player->entity.worldCollider);
+	SDL_SetRenderDrawColor(render->renderer, 100, 100, 255, 255);
     polygon_render(render->renderer, &player->entity.worldCollider, renderDebug);
 }
 
@@ -147,9 +149,14 @@ void player_inputs_run(t_player* player, float deltaTime)
 		entity_move(&player->entity, E_RIGHT, deltaTime);
 	}
 	
+	player->nextTeleportationDelay -= deltaTime;
 	if (player->bInputs.teleport)
 	{
-		entity_teleport(&player->entity);
+		if (player->nextTeleportationDelay < 0)
+		{
+			player->nextTeleportationDelay = TELEPORTATION_DELAY;
+			entity_teleport(&player->entity);
+		}
 	}
 }
 

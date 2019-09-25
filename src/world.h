@@ -27,11 +27,12 @@ typedef struct
 
     t_textbox* gameOverTextBox;
     t_textbox* pauseTextBox;
+
+    t_textbox* commandesTextBox;
 } t_widgets;
 
 typedef struct 
 {
-    //unsigned int* minesNb;
     unsigned int floatingMine;
     unsigned int fireballMine;
     unsigned int magneticMine;

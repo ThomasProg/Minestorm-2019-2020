@@ -117,4 +117,6 @@ axisAlignedRectangle fuseAxisAlignedRectangles(axisAlignedRectangle a, axisAlign
 void polygon_free(polygon* polygon);
 void polygon_aabb_generate(polygon* polygon1);
 
+point2D getClosestPointToPoint(point2D point1, point2D* points, unsigned int nbPoints);
+
 #endif

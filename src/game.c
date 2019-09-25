@@ -54,11 +54,11 @@ bool game_init(game* game)
 	srand(time(NULL));   // Initialization, should only be called once.
 
 	if (SDL_Init(SDL_INIT_VIDEO|SDL_INIT_AUDIO) != 0) 
-		return 0;
+		return false;
 
 	if (TTF_Init() < 0)
 	{
-		return 0;
+		return false;
 	}
 	
 	t_assets* assets = assets_create(50, 4, 1); //50 images, 4 sounds, 1 font
@@ -71,7 +71,7 @@ bool game_init(game* game)
 	//game->level.levelID = E_PLAY;
 	level_init(&game->level, E_MENU, assets);//E_PLAY);
 	game->run = true;
-	return 1;
+	return true;
 }
 
 void game_destroy(game* game)

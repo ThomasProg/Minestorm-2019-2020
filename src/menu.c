@@ -14,7 +14,11 @@ t_menu* menu_create(t_assets* assets)
 	rect.y = 60;
 	rect.w = 100;
 	rect.h = 100;
-	
+
+	//dynamicArray_Init(&menu->buttons, sizeof(t_button*), 2);
+	//dynamicArray_Init(&menu->textboxes, sizeof(t_button*), 2);
+
+	//t_button* button = dynamicArray_AddItem(&menu->buttons) 
 	menu->button = button_init(render_get(assets->render, 0), rect, (SDL_Rect){0, 0, 100, 100});
 
 	rect.y = 10;

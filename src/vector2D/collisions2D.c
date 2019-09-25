@@ -296,8 +296,6 @@ bool segment_axisAlignedRectangle_collision(segment segment1, axisAlignedRectang
 	return false;
 }
 
-
-
 bool circle_circle_collision(circle a, circle b)
 {
 	return vectorLength(substractVectors(a.center, b.center)) < a.length + b.length;
@@ -337,21 +335,34 @@ range projectCircle(circle* circle1, vector2D* axis)
 //SAT algorithm
 bool circle_convexPolygon_collision(circle circle1, convexPolygon convexPolygon1)
 {
-	vector2D normal;
-	range range1, range2;
+	vector2D projectionAxis;
+	range polygonProjection, circleProjection;
 
+	//project on polygon's projection axis
 	for (unsigned int i = 0; i < convexPolygon1.size; i++)
 	{
-		normal = normalVector(substractVectors(
+		projectionAxis = normalVector(substractVectors(
 			convexPolygon1.points[i], convexPolygon1.points[(i + 1) % convexPolygon1.size]));
 
-		range1 = projectPolygon(&convexPolygon1, &normal);
-		range2 = projectCircle(&circle1, &normal);
+		polygonProjection = projectPolygon(&convexPolygon1, &projectionAxis);
+		circleProjection = projectCircle(&circle1, &projectionAxis);
 
-		if (!rangeIntersect(range1, range2))
+		if (!rangeIntersect(polygonProjection, circleProjection))
 		{
 			return false;
 		}
+	}
+
+	//project on circle's projection axis
+	point2D closestPolygonPoint = getClosestPointToPoint(circle1.center, convexPolygon1.points, convexPolygon1.size);
+
+	projectionAxis = substractVectors(circle1.center, closestPolygonPoint);
+	polygonProjection  = projectPolygon(&convexPolygon1, &projectionAxis);
+	float fCircleProjection   = dotProduct(circle1.center, projectionAxis);
+
+	if (fCircleProjection < polygonProjection.min || fCircleProjection > polygonProjection.max)
+	{
+		return false;
 	}
 
 	return true;
@@ -367,6 +378,7 @@ bool convexPolygon_convexPolygon_SAT(convexPolygon convexPolygon1, convexPolygon
 	{
 		normal = normalVector(substractVectors(
 			convexPolygon1.points[i], convexPolygon1.points[(i + 1) % convexPolygon1.size]));
+		normal = unitVector(normal);
 
 		range1 = projectPolygon(&convexPolygon1, &normal);
 		range2 = projectPolygon(&convexPolygon2, &normal);
@@ -376,6 +388,7 @@ bool convexPolygon_convexPolygon_SAT(convexPolygon convexPolygon1, convexPolygon
 			return false;
 		}
 	}
+	//fprintf(stderr, "size : %u %u\n", convexPolygon1.size, convexPolygon2.size);
 
 	return true;
 }
@@ -411,10 +424,11 @@ bool polygon_polgyon_collision(polygon* poly1, polygon* poly2)
 		return false;
 
 	unsigned int i = 0;
-	unsigned int j = 0;
+	unsigned int j; //declare j before the loop => better for optimization
 	//opti ?
 	while (i < poly1->nbConvexPolygons)
 	{
+		j = 0;
 		while (j < poly2->nbConvexPolygons)
 		{
 			if (convexPolygon_convexPolygon_collision(poly1->convexPolygons[i], poly2->convexPolygons[j]))
@@ -425,6 +439,5 @@ bool polygon_polgyon_collision(polygon* poly1, polygon* poly2)
 		}
 		i++;
 	}
-
 	return false;
 }

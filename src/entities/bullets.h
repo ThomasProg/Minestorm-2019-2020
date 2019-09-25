@@ -11,6 +11,7 @@ typedef struct s_bullet
     circle collision;
 
     bool isBullet; //else, is fireball
+    unsigned int playerOwnerID;
 } t_bullet;
 
 void bullet_init(t_bullet* bullet, vector2D location, vector2D relativeVelocity, 

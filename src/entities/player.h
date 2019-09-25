@@ -37,8 +37,9 @@ typedef struct s_player
 
     t_entity entity;
 
-	//t_dynamicArray bullets;
-	unsigned int lastShoot; //in milliseconds
+	//in milliseconds
+	unsigned int lastShoot; 
+	float nextTeleportationDelay;
 
 	bInputs bInputs;
 	inputValues inputValues;

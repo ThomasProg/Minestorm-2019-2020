@@ -13,6 +13,8 @@
 typedef struct 
 {
     SDL_Rect mouseLocation;
+    //t_dynamicArray buttons;
+    //t_dynamicArray textboxes;
     t_button* button;
     t_textbox* textbox;
 } t_menu;

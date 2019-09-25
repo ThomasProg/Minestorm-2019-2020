@@ -52,7 +52,7 @@ polygon localToWorld_polygon(polygon* polygon1, referential ref)
 {
     polygon returned = *polygon1;
     returned.convexPolygons = malloc(returned.nbConvexPolygons * sizeof(convexPolygon));
-
+    returned.nbConvexPolygons = polygon1->nbConvexPolygons;
     for (unsigned int i = 0; i < returned.nbConvexPolygons; i++)
     {
         returned.convexPolygons[i] = localToWorld_convexPolygon(&polygon1->convexPolygons[i], ref);

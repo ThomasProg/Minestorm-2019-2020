@@ -1,4 +1,5 @@
 #include "mines.h"
+#include "mines_subtype/minelayer.h"
 #include "macros.h"
 
 void mine_collisionBox_init(polygon* collision, 
@@ -36,9 +37,37 @@ void mine_collisionBox_init(polygon* collision,
     }
 }
 
+// void mine_spawn(t_dynamicArray* mines)
+// {
+//     world->spawnDelay = 0.3f;
+
+//     unsigned int mineType = mines_readyToSpawn(&world->minesBySize[2]);
+//     E_SIZE size = BIG;
+//     if (mineType == 5)
+//     {
+//         mineType = mines_readyToSpawn(&world->minesBySize[1]);
+//         size = MEDIUM;
+//     }	
+//     if (mineType == 5)
+//     {
+//         mineType = mines_readyToSpawn(&world->minesBySize[0]);
+//         size = SMALL;
+//     }	
+//     if (mineType != 5)
+//     {
+//         t_mine* mine = dynamicArray_AddItem(mines);
+//         mine_init(mine, mineType, spawner->location, size);
+//         dynamicArray_RemoveItem(&world->spawners, i);
+//     }
+// }
+
 void mine_init(t_mine* mine, unsigned int type, vector2D location, E_SIZE sizeType)
 {
     entity_init(&mine->entity);
+
+    mine->isMineLayer = false;
+    mine->sizeType = sizeType;
+    mine->mineLayerDelay = 5.f;
 
     mine->entity.collision = malloc(sizeof(polygon));
 
@@ -131,16 +160,24 @@ void mine_init(t_mine* mine, unsigned int type, vector2D location, E_SIZE sizeTy
         default :
             //assert(false); //no mine of this id exists
             break;
+        case 4 :
+            minelayer_collisionBox_init(mine->entity.collision);
+            //mine_collisionBox_init(mine->entity.collision, 10, 10, 100);
+            mine->followPlayer = false;
+            mine->throwFireballs = false;
+            mine->isMineLayer = true;
+            mine->sizeType = BIG;
+            mine->givenScore = 1000;
+            mine->entity.isTeleportingAtBorder = false;
+            break;
     }
 
-    mine->sizeType = sizeType;
-
     if (sizeType == SMALL)
-        mine->size = 0.2f;
+        mine->size = SMALL_SIZE;
     if (sizeType == MEDIUM)
-        mine->size = 0.6f;
+        mine->size = MEDIUM_SIZE;
     if (sizeType == BIG)
-        mine->size = 1.0f;
+        mine->size = BIG_SIZE;
 
     polygon* collision = mine->entity.collision;
     //TODO : resize Polygon (because same as player's one)
@@ -152,11 +189,14 @@ void mine_init(t_mine* mine, unsigned int type, vector2D location, E_SIZE sizeTy
 		}
 	}
 
-	vector2D velocity = {rand() % 100 - 50, rand() % 100 - 50};
-	if (velocity.x == 0.f && velocity.y == 0.f)
-	    velocity.x = 1.f;
-	velocity = unitVector(velocity);
-        mine->entity.velocity = scaleVector(velocity, 1 / mine->size * FLOATING_MINE_SPEED);
+    if (!mine->followPlayer && FLOATING_MINE_SPEED != 0)
+    {
+        vector2D velocity = {rand() % 100 - 50, rand() % 100 - 50};
+        if (velocity.x == 0.f && velocity.y == 0.f)
+            velocity.x = 1.f;
+        velocity = unitVector(velocity);
+            mine->entity.velocity = scaleVector(velocity, 1 / mine->size * FLOATING_MINE_SPEED);
+    }
 
     mine->entity.ref.origin = location;
 	mine->entity.collisionType = E_MINE;
@@ -176,6 +216,7 @@ void mine_render(t_mine* mine, t_render* render, bool renderDebug)
 
     polygon_aabb_generate(&mine->entity.worldCollider);
 
+    SDL_SetRenderDrawColor(render->renderer, 255, 255, 0, 255);
     polygon_render(render->renderer, &mine->entity.worldCollider, renderDebug);
 }
 
@@ -191,6 +232,7 @@ void mine_tick(t_mine* mine, float deltaTime)
 {
     entity_tick(&mine->entity, deltaTime);
 
+    //Magnetic mines
     if (mine->followPlayer)
     {
         //search for player
@@ -222,12 +264,24 @@ void mine_tick(t_mine* mine, float deltaTime)
     }
     
     else
-    {/*
-	    vector2D velocity = {rand() % 100 - 50, rand() % 100 - 50};
-	    if (velocity.x == 0.f && velocity.y == 0.f)
-		    velocity.x = 1.f;
-	    velocity = unitVector(velocity);*/
+    {
+        float speed = FLOATING_MINE_SPEED;
+        switch (mine->sizeType)
+        {
+            case BIG :
+                speed *= 1.f;
+                break;
+            case MEDIUM :
+                speed *= 1.3f;
+                break;
+            case SMALL :
+                speed *= 1.5f;
+                break;
 
-        mine->entity.velocity = scaleVector(unitVector(mine->entity.velocity), 1 / mine->size * FLOATING_MINE_SPEED);
+            default:
+                break;
+        }
+        if (mine->entity.velocity.x != 0.0f && mine->entity.velocity.y != 0.0f)
+            mine->entity.velocity = scaleVector(unitVector(mine->entity.velocity), speed);
     }
 }

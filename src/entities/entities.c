@@ -19,6 +19,7 @@ void entity_init(t_entity* entity)
 	entity->ref.origin = (vector2D){300, 300};
 
 	entity->maxSpeed = 500.f;
+	entity->isTeleportingAtBorder = true;
 
 	entity->worldCollider.convexPolygons = NULL;
 
@@ -50,6 +51,7 @@ void entity_render(t_entity* entity, t_render* render, bool renderDebug)
 	}
 
 	polygon* poly = entity->collision;
+	entity->worldCollider = localToWorld_polygon(poly, entity->ref);
 	entity->worldCollider = localToWorld_polygon(poly, entity->ref);
 
 	//render referential
@@ -101,7 +103,8 @@ void entity_tick(t_entity* entity, float deltaTime)
 	location->x += velocity->x * deltaTime;
 	location->y += velocity->y * deltaTime;
 
-	border_teleportation(&entity->ref.origin);
+	if (entity->isTeleportingAtBorder)
+		border_teleportation(&entity->ref.origin);
 
 	//straighten velocity
 	float velocityMagnitude = vectorLength(*velocity);

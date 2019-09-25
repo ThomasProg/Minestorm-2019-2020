@@ -237,3 +237,25 @@ void polygon_aabb_generate(polygon* polygon1)
 		polygon1->aabb = fuseAxisAlignedRectangles(polygon1->aabb, convex->aabb);
 	}
 }
+
+point2D getClosestPointToPoint(point2D point1, point2D* points, unsigned int nbPoints)
+{
+	if (nbPoints == 0)
+		return nullVector(); //assert
+
+	point2D returnedPoint = points[0];
+	float minLength       = distancePointToPoint(point1, returnedPoint);
+	float currentLength;
+
+	for (unsigned int i = 1; i < nbPoints; i++)
+	{
+		currentLength = distancePointToPoint(point1, points[i]);
+		if (currentLength < minLength)
+		{
+			minLength = currentLength;
+			returnedPoint = points[i];
+		}
+	}
+
+	return returnedPoint;
+}

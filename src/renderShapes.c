@@ -11,7 +11,8 @@ void convexPolygon_render(SDL_Renderer* renderer, convexPolygon convex, bool ren
 		point2D a = convex.points[i];
 		point2D b = convex.points[j];
 
-		SDL_SetRenderDrawColor(renderer, 255, 255, 0, 255);
+		if (renderAABB)
+			SDL_SetRenderDrawColor(renderer, 255, 255, 0, 255);
 		SDL_RenderDrawLine(renderer, a.x, a.y, b.x, b.y);
 		
 		if (renderAABB)
@@ -26,6 +27,9 @@ void polygon_render(SDL_Renderer* renderer, polygon* polygon, bool renderAABB)
 {
     for (unsigned int i = 0; i < polygon->nbConvexPolygons; i++)
     {
+		if (renderAABB)
+			SDL_SetRenderDrawColor(renderer, 255, 255, 0, 255);
+
         convexPolygon_render(renderer, polygon->convexPolygons[i], renderAABB);
 		
 		if (renderAABB)
