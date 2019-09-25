@@ -1,0 +1,140 @@
+===============================
+==========DESCRIPTION==========
+===============================
+
+This game is inspired from Minestorm, the Vectrex Game.
+The player controls a space ship.
+He has to destroy enemies by shooting them to get to the next levels.
+The difficulty increases with each new level.
+There are different enemy types.
+The game is playable with 2 players.
+
+==============================
+==========HOW TO RUN==========
+==============================
+
+- Prerequisites : 
+	- Running on linux or a similar environment
+	- Having the GNU Compiler Collection, compiling C
+	- Having SDL, TTF_FONT and SDL_MIXER librairies linked
+ 
+- Download the folder containing this file
+- Move into the same directory as the Makefile
+- Run the Makefile by using the "make" command
+- Run "./exe"
+- Enjoy
+
+If an error occurs, make sure to read the errors list.
+
+=============================
+==========COMMANDES==========
+=============================
+
+========IN MENU========
+
+- Press F to play solo
+- Press K to play with 2 players
+- Press Escape to leave the game
+
+========IN GAME========
+
+Player 1 inputs :
+- D and G to rotate
+- R to move forward
+- F to shoot
+- E and T to teleport
+Player 2 inputs :
+- J and L to rotate
+- I to move forward
+- K to shoot
+- U and O to teleport
+
+Options :
+- Press SPACE to pause and resume
+- Press C to show and hide Collision Boxes
+- Press Escape to go back to the menu
+
+===============================
+==========HOW TO PLAY==========
+===============================
+
+
+==============================
+==========KNOWN BUGS==========
+==============================
+
+??????????????????????????????
+- Some collisions may not occur due to A Posteriori collision detection.
+- Keyboards may limit the amout of inputs pressed at the same time, causing trouble while playing in multiplayer.
+
+=================================
+==========USED TECHNICS==========
+=================================
+
+- game.c initializes and destroys the game properly. 
+	 It also contains the game loop.
+
+- A Custom Dynamic Array.
+	- Code in src/DynamicArray/ .
+	- Used to allocate the list of Players, mines, spawners and bullets.
+	- Used for SDL_Utilities/ too.
+	- Pros : 
+		- A speed efficient Dynamic Array.
+		- Can be used as a Static Array.
+	- Cons : 
+		- May contain too much memory in some cases.
+		- Not memory efficient.
+
+- SDL Tools, used to allocate asset references.
+	- Code in src/SDL_Utilities/ .
+	- Used to stack Font, Images, and may stack Sound in future releases.
+	- Pros :
+		- Improve performances
+
+- Levels, used as ue4 ones. Do not confuse with Minestorm levels.
+	- Code in src/levels.c and .h
+	- Used to initialize and destroy world and menu
+	- Game loop redirected to world or menu
+	- Pros : 
+		- Easy to add new levels (option menu, new games...)
+		- Bugs from one level can't influence other levels
+
+???????????????????????????????
+
+
+
+===============================
+==========MATHEMATICS==========
+===============================
+
+========Vector2D Tools========
+- In src/vecto2D/vector2D.c and .h
+
+==========REFERENTIAL==========
+- Referential in src/vector2D/objects.h
+- LocalToWorld and WorldToLocal functions in src/vector2D/objects.c
+
+========NEWTONIAN MODEL========
+???????????????????????????????
+ACCELERATION :
+SPEED :
+DRIFT :
+
+========SAT COLLISIONS========
+- Collision functions in src/vector2D/collisions.c (from l.????? to l.?????)
+
+
+========AABB COLLISIONS========
+- Used in src/vector2D/collisions.c :
+	- In convexPolygon_convexPolygon_collisions (l.?????)
+	- In polygon_polygon_collisions (l.?????)
+- Initialized in ?????
+
+=====GAMEPLAY OBJECTS CREATION METHODS=====
+????????????????????????????????????????????
+
+
+
+
+
+
