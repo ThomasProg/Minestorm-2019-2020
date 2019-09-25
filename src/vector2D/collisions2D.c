@@ -358,9 +358,9 @@ bool circle_convexPolygon_collision(circle circle1, convexPolygon convexPolygon1
 
 	projectionAxis = substractVectors(circle1.center, closestPolygonPoint);
 	polygonProjection  = projectPolygon(&convexPolygon1, &projectionAxis);
-	float fCircleProjection   = dotProduct(circle1.center, projectionAxis);
+	circleProjection = projectCircle(&circle1, &projectionAxis);
 
-	if (fCircleProjection < polygonProjection.min || fCircleProjection > polygonProjection.max)
+	if (!rangeIntersect(polygonProjection, circleProjection))
 	{
 		return false;
 	}
