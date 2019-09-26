@@ -162,7 +162,7 @@ DRIFT :
 src/entities/player.c 	: player_init (l.89)
 src/entities/bullet.c 	: bulet_init (l.5)
 src/entities/mines.c   	: mine_init (l.162) 
-						  (and the previous functions, floatingMine_init, ...)
+	(and the previous functions, floatingMine_init, ...)
 src/entities/entities.c : entity_init (l.15)
 
 
