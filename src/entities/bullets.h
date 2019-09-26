@@ -16,7 +16,6 @@ typedef struct s_bullet
 
 void bullet_init(t_bullet* bullet, vector2D location, vector2D relativeVelocity, 
                  vector2D shootDirection, bool isBullet);
-void bullet_destroy(t_bullet* bullet);
 
 void bullet_render(SDL_Renderer* renderer, t_bullet* bullet, unsigned int nbLines);
 

@@ -42,16 +42,9 @@ void entity_destroy(t_entity* entity)
 void entity_render(t_entity* entity, t_render* render, bool renderDebug)
 {
 	if (entity->worldCollider.convexPolygons != NULL)
-	{
-		for (unsigned int i = 0; i < entity->worldCollider.nbConvexPolygons; i++)
-		{
-			free(entity->worldCollider.convexPolygons[i].points);
-		}
-		free(entity->worldCollider.convexPolygons);
-	}
+		polygon_free(&entity->worldCollider);
 
 	polygon* poly = entity->collision;
-	entity->worldCollider = localToWorld_polygon(poly, entity->ref);
 	entity->worldCollider = localToWorld_polygon(poly, entity->ref);
 
 	//render referential
@@ -103,56 +96,64 @@ void entity_tick(t_entity* entity, float deltaTime)
 	location->x += velocity->x * deltaTime;
 	location->y += velocity->y * deltaTime;
 
-	if (entity->isTeleportingAtBorder)
-		border_teleportation(&entity->ref.origin);
-
+	//DRIFT
 	//straighten velocity
 	float velocityMagnitude = vectorLength(*velocity);
-	if (velocityMagnitude != 0.f)
+	if (floatIsNearlyEqual(velocityMagnitude, 0.0, 0.1f)) //useless to straighten if there is no speed
 	{
+		//since the drift is relative to the player : 
 		*velocity = worldToLocal_vector2D(*velocity, entity->ref);
 		velocity->x += DRIFT_LEVEL * deltaTime;
 		if (vectorLength(*velocity) != 0.f)
 			*velocity = scaleVector(unitVector(*velocity), velocityMagnitude);
 		*velocity = localToWorld_vector2D(*velocity, entity->ref);
 	}
+
+	if (entity->isTeleportingAtBorder)
+		border_teleportation(&entity->ref.origin);
 }
 
-void entity_move(t_entity* entity, E_MOVE move, float deltaTick)
+void entity_moveForward(t_entity* entity, float deltaTime)
 {
-	vector2D acc; //acceleration
-	decimal angle;
-
+	vector2D acc; 
 	vector2D *velocity = &entity->velocity;
 
+	//set acceleration relative to player
+	acc.x = ACCELERATION * deltaTime / ENTITY_MASS;
+	acc.y = 0;
+	//deltaTime is used because acc is the derivative of speed,
+	//which is the derivative to the location
+
+	acc = localToWorld_vector2D(acc, entity->ref);
+
+	//add acceleration to velocity
+	*velocity = addVectors(*velocity, acc);
+
+	float totalSpeed = vectorLength(*velocity);
+
+	//limit speed
+	if (totalSpeed > entity->maxSpeed)
+		*velocity = scaleVector(unitVector(*velocity), entity->maxSpeed);
+}
+
+void entity_move(t_entity* entity, E_MOVE move, float deltaTime)
+{
 	switch (move)
 	{
 		case E_LEFT:
-			entity->ref.unitI = rotateVector(entity->ref.unitI, - ANGULAR_SPEED * deltaTick);
+			entity->ref.unitI = rotateVector(entity->ref.unitI, - ANGULAR_SPEED * deltaTime);
 			entity->ref.unitI = unitVector(entity->ref.unitI);
 			entity->ref.unitJ = rotateVector90(entity->ref.unitI);
 			break;
 
 		case E_RIGHT:
-			entity->ref.unitI = rotateVector(entity->ref.unitI, ANGULAR_SPEED * deltaTick);
+			entity->ref.unitI = rotateVector(entity->ref.unitI, ANGULAR_SPEED * deltaTime);
 			entity->ref.unitI = unitVector(entity->ref.unitI);
 			entity->ref.unitJ = rotateVector90(entity->ref.unitI);
 			break;
 
 		case E_FORWARD:
-			acc.x = 0;
-			acc.y = ACCELERATION * deltaTick / ENTITY_MASS;
-			angle = -vectorAngle(entity->ref.unitI);
-			acc = rotateVector(acc, angle);
-
-			*velocity = addVectors(*velocity, acc);
-
-			float totalSpeed = vectorLength(*velocity);
-
-			if (totalSpeed > entity->maxSpeed)
-			{
-				*velocity = scaleVector(unitVector(*velocity), entity->maxSpeed);
-			}
+			entity_moveForward(entity, deltaTime);
 			break;
 	}
 }

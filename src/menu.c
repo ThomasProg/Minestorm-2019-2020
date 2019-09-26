@@ -15,15 +15,14 @@ t_menu* menu_create(t_assets* assets)
 	rect.w = 100;
 	rect.h = 100;
 
-	//dynamicArray_Init(&menu->buttons, sizeof(t_button*), 2);
-	//dynamicArray_Init(&menu->textboxes, sizeof(t_button*), 2);
-
-	//t_button* button = dynamicArray_AddItem(&menu->buttons) 
-	menu->button = button_init(render_get(assets->render, 0), rect, (SDL_Rect){0, 0, 100, 100});
+	menu->button = button_init(render_get(assets->render, 0), rect, (SDL_Rect){0, 0, 500, 500});
 
 	rect.y = 10;
 	TTF_Font* font = font_get(assets->font, 0);
-	menu->textbox = textbox_create("MENU", rect, font);
+	menu->textbox = textbox_create("MINESTORM MENU", rect, font);
+
+	rect.y += 400;
+	menu->helpTextBox = textbox_create("Press f to play solo \n Press k to play with 2 players \n Esc to leave", rect, font);
 
     return menu;
 }
@@ -32,6 +31,9 @@ void menu_destroy(t_menu* menu)
 {
 	textbox_destroy(menu->textbox);
 	free(menu->textbox);
+
+	textbox_destroy(menu->helpTextBox);
+	free(menu->helpTextBox);
 	
 	button_destroy(menu->button);
 	free(menu->button);
@@ -44,11 +46,7 @@ void menu_render(t_menu* menu, t_assets* assets)
 	button_render(assets->render->renderer, menu->button);
 
 	textbox_render(assets->render->renderer, menu->textbox);
-}
-
-void menu_tick(t_menu* menu, float deltaTime)
-{
-
+	textbox_render(assets->render->renderer, menu->helpTextBox);
 }
 
 void menu_inputs(t_level* level, t_menu* menu)
@@ -61,7 +59,6 @@ void menu_inputs(t_level* level, t_menu* menu)
 
 		if (event.type == SDL_MOUSEBUTTONDOWN)
 		{
-			//int key = event.key.keysym.sym;
 			if (event.button.button == SDL_BUTTON_LEFT)
 			{
 				if (button_collision(menu->button, menu->mouseLocation.x, menu->mouseLocation.y))
@@ -88,14 +85,9 @@ void menu_inputs(t_level* level, t_menu* menu)
 				level_modifySafe(level, E_QUIT);
 
 		}
-		if (event.type == SDL_KEYUP) //release
-		{
-			//int key = event.key.keysym.sym;
-		}
+
 		if (event.type == SDL_QUIT)
 			level_modifySafe(level, E_QUIT);
-			//level_modify(level, E_QUIT);
-			//game->run = false;
 	}
 }
 
@@ -107,10 +99,4 @@ void menu_loop(t_assets* assets, float deltaTime, t_level* level)
 	menu_render(menu, assets);
 
 	menu_inputs(level, menu);
-
-	//if (world->isPaused)
-	//	return;
-
-	//world_tick(world, deltaTime);
-
 }

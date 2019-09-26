@@ -2,13 +2,15 @@
 #define _ENTITIES_H_
 
 #include "stats.h"
-#include "vector2D/objects.h"
+#include "vector2D/referential.h"
 #include "SDL_utilities/render.h"
-#include "physics.h"
 #include "renderShapes.h"
 
 #include <SDL2/SDL.h> 
 
+//used to switch between collision types;
+//however, they are all the same for the moment (polygon type),
+//so it would be useful for future development
 typedef enum 
 {
 	E_PLAYER = 0,
@@ -30,12 +32,11 @@ typedef struct s_entity
 	vector2D velocity;
 	referential ref;
 
-	//axisAlignedRectangle aabb;
 	void* collision;
 	polygon worldCollider;
 	E_COLLISION_TYPE collisionType;
 	
-	SDL_Texture* texture;
+	SDL_Texture* texture; 
 } t_entity;
 
 t_entity* entity_create();
@@ -45,7 +46,7 @@ void entity_render(t_entity* entity, t_render* render, bool renderDebug);
 
 void entity_tick(t_entity* entity, float deltaTime);
 
-void entity_move(t_entity* entity, E_MOVE move, float deltaTick);
+void entity_move(t_entity* entity, E_MOVE move, float deltaTime);
 void entity_teleport(t_entity* entity);
 
 #endif

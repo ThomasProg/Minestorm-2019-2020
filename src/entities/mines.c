@@ -1,5 +1,6 @@
 #include "mines.h"
 #include "mines_subtype/minelayer.h"
+#include "worldField.h"
 #include "macros.h"
 
 void mine_collisionBox_init(polygon* collision, 
@@ -37,29 +38,126 @@ void mine_collisionBox_init(polygon* collision,
     }
 }
 
-// void mine_spawn(t_dynamicArray* mines)
-// {
-//     world->spawnDelay = 0.3f;
+void floatingMine_init(t_mine* mine, E_SIZE sizeType)
+{
+    mine_collisionBox_init(mine->entity.collision, 3, 
+        25 * mine->size * MINE_SIZE_RATIO, 100 * mine->size * MINE_SIZE_RATIO);
+    mine->followPlayer = false;
+    mine->throwFireballs = false;
+    switch (sizeType)
+    {
+        case SMALL:
+            mine->givenScore = 200;
+            break;
+        case MEDIUM:
+            mine->givenScore = 135;
+            break;
+        case BIG:
+            mine->givenScore = 100;
+            break;
+        
+        default:
+            break;
+    }
+}
 
-//     unsigned int mineType = mines_readyToSpawn(&world->minesBySize[2]);
-//     E_SIZE size = BIG;
-//     if (mineType == 5)
-//     {
-//         mineType = mines_readyToSpawn(&world->minesBySize[1]);
-//         size = MEDIUM;
-//     }	
-//     if (mineType == 5)
-//     {
-//         mineType = mines_readyToSpawn(&world->minesBySize[0]);
-//         size = SMALL;
-//     }	
-//     if (mineType != 5)
-//     {
-//         t_mine* mine = dynamicArray_AddItem(mines);
-//         mine_init(mine, mineType, spawner->location, size);
-//         dynamicArray_RemoveItem(&world->spawners, i);
-//     }
-// }
+void magneticMine_init(t_mine* mine, E_SIZE sizeType)
+{
+    mine_collisionBox_init(mine->entity.collision, 4, 
+        25 * mine->size * MINE_SIZE_RATIO, 100 * mine->size * MINE_SIZE_RATIO);
+    mine->followPlayer = true;
+    mine->throwFireballs = false;
+    switch (sizeType)
+    {
+        case SMALL:
+            mine->givenScore = 600;
+            break;
+        case MEDIUM:
+            mine->givenScore = 535;
+            break;
+        case BIG:
+            mine->givenScore = 500;
+            break;
+        
+        default:
+            break;
+    }
+}
+
+void fireballMine_init(t_mine* mine, E_SIZE sizeType)
+{
+    mine_collisionBox_init(mine->entity.collision, 4, 
+        50 * mine->size * MINE_SIZE_RATIO, 100 * mine->size * MINE_SIZE_RATIO);
+    mine->followPlayer = false;
+    mine->throwFireballs = true;
+    switch (sizeType)
+    {
+        case SMALL:
+            mine->givenScore = 325;
+            break;
+        case MEDIUM:
+            mine->givenScore = 360;
+            break;
+        case BIG:
+            mine->givenScore = 425;
+            break;
+        
+        default:
+            break;
+    }
+}
+
+void magneticFireballMine_init(t_mine* mine, E_SIZE sizeType)
+{
+    mine_collisionBox_init(mine->entity.collision, 4, 
+            10 * mine->size * MINE_SIZE_RATIO, 100 * mine->size * MINE_SIZE_RATIO);
+    mine->followPlayer = true;
+    mine->throwFireballs = true;
+    switch (sizeType)
+    {
+        case SMALL:
+            mine->givenScore = 850;
+            break;
+        case MEDIUM:
+            mine->givenScore = 585;
+            break;
+        case BIG:
+            mine->givenScore = 750;
+            break;
+        
+        default:
+            break;
+    }
+}
+
+void mine_initForDifferentTypes(t_mine* mine, unsigned int type, E_SIZE sizeType)
+{
+    //floating mine
+    switch (type)
+    {
+        case 0 :
+            floatingMine_init(mine, sizeType);
+            break;
+
+        case 1 :
+            fireballMine_init(mine, sizeType);
+            break;
+
+        case 2 :
+            magneticMine_init(mine, sizeType);
+            break;
+
+        case 3 :
+            magneticFireballMine_init(mine, sizeType);
+            break;
+        default :
+            //assert(false); //no mine of this id exists
+            break;
+        case 4 :
+            minelayer_init(mine, sizeType);
+            break;
+    }
+}
 
 void mine_init(t_mine* mine, unsigned int type, vector2D location, E_SIZE sizeType)
 {
@@ -71,107 +169,6 @@ void mine_init(t_mine* mine, unsigned int type, vector2D location, E_SIZE sizeTy
 
     mine->entity.collision = malloc(sizeof(polygon));
 
-    //floating mine
-    switch (type)
-    {
-        case 0 :
-            mine_collisionBox_init(mine->entity.collision, 3, 25, 100);
-            mine->followPlayer = false;
-            mine->throwFireballs = false;
-            switch (sizeType)
-            {
-                case SMALL:
-                    mine->givenScore = 200;
-                    break;
-                case MEDIUM:
-                    mine->givenScore = 135;
-                    break;
-                case BIG:
-                    mine->givenScore = 100;
-                    break;
-                
-                default:
-                    break;
-            }
-            break;
-
-        case 1 :
-            mine_collisionBox_init(mine->entity.collision, 4, 25, 100);
-            mine->followPlayer = true;
-            mine->throwFireballs = false;
-            switch (sizeType)
-            {
-                case SMALL:
-                    mine->givenScore = 600;
-                    break;
-                case MEDIUM:
-                    mine->givenScore = 535;
-                    break;
-                case BIG:
-                    mine->givenScore = 500;
-                    break;
-                
-                default:
-                    break;
-            }
-            break;
-        
-        case 2 :
-            mine_collisionBox_init(mine->entity.collision, 4, 50, 100);
-            mine->followPlayer = false;
-            mine->throwFireballs = true;
-            switch (sizeType)
-            {
-                case SMALL:
-                    mine->givenScore = 325;
-                    break;
-                case MEDIUM:
-                    mine->givenScore = 360;
-                    break;
-                case BIG:
-                    mine->givenScore = 425;
-                    break;
-                
-                default:
-                    break;
-            }
-            break;
-
-        case 3 :
-            mine_collisionBox_init(mine->entity.collision, 4, 10, 100);
-            mine->followPlayer = true;
-            mine->throwFireballs = true;
-            switch (sizeType)
-            {
-                case SMALL:
-                    mine->givenScore = 850;
-                    break;
-                case MEDIUM:
-                    mine->givenScore = 585;
-                    break;
-                case BIG:
-                    mine->givenScore = 750;
-                    break;
-                
-                default:
-                    break;
-            }
-            break;
-        default :
-            //assert(false); //no mine of this id exists
-            break;
-        case 4 :
-            minelayer_collisionBox_init(mine->entity.collision);
-            //mine_collisionBox_init(mine->entity.collision, 10, 10, 100);
-            mine->followPlayer = false;
-            mine->throwFireballs = false;
-            mine->isMineLayer = true;
-            mine->sizeType = BIG;
-            mine->givenScore = 1000;
-            mine->entity.isTeleportingAtBorder = false;
-            break;
-    }
-
     if (sizeType == SMALL)
         mine->size = SMALL_SIZE;
     if (sizeType == MEDIUM)
@@ -179,25 +176,16 @@ void mine_init(t_mine* mine, unsigned int type, vector2D location, E_SIZE sizeTy
     if (sizeType == BIG)
         mine->size = BIG_SIZE;
 
-    polygon* collision = mine->entity.collision;
-    //TODO : resize Polygon (because same as player's one)
-	for (unsigned int i = 0; i < collision->nbConvexPolygons; i++)
-	{	
-		for (unsigned int j = 0; j < collision->convexPolygons[i].size; j++)
-		{
-			collision->convexPolygons[i].points[j] = scaleVector(collision->convexPolygons[i].points[j], mine->size * WINDOW_SCALE);
-		}
-	}
-
+    mine_initForDifferentTypes(mine, type, sizeType);
+    //set floating mines speed
     if (!mine->followPlayer && FLOATING_MINE_SPEED != 0)
     {
         vector2D velocity = {rand() % 100 - 50, rand() % 100 - 50};
-        if (velocity.x == 0.f && velocity.y == 0.f)
+        if (vectorIsNearlyEqual(velocity, nullVector(), 1))
             velocity.x = 1.f;
         velocity = unitVector(velocity);
-            mine->entity.velocity = scaleVector(velocity, 1 / mine->size * FLOATING_MINE_SPEED);
+            mine->entity.velocity = scaleVector(velocity, 3 / mine->size * FLOATING_MINE_SPEED * 3);
     }
-
     mine->entity.ref.origin = location;
 	mine->entity.collisionType = E_MINE;
     mine->target = NULL;
@@ -208,6 +196,30 @@ void mine_destroy(t_mine* mine)
     polygon_free(mine->entity.collision);
     free(mine->entity.collision);
     polygon_free(&mine->entity.worldCollider);
+}
+
+void mine_newTarget(t_dynamicArray* players, t_mine* mine)
+{
+    unsigned int firstPlayerID = 0; 
+    if (!dynamicArray_GetValidItemIndex(players, &firstPlayerID))
+        return;
+    t_player* player = dynamicArray_GetItem(players, firstPlayerID); 
+    mine->target = player;
+    for (unsigned int j = 1; dynamicArray_GetValidItemIndex(players, &j); j++)
+    {
+        player = dynamicArray_GetItem(players, j);
+        if (mine->target != NULL)
+        {
+            float distance = vectorSquareLength(substractVectors(
+                            player->entity.ref.origin, mine->entity.ref.origin));
+            float currentDistance = vectorSquareLength(substractVectors(
+                                    mine->target->entity.ref.origin, mine->entity.ref.origin));
+            if (currentDistance > distance)
+                mine->target = player;
+        }
+        else
+            mine->target = player;
+    }
 }
 
 void mine_render(t_mine* mine, t_render* render, bool renderDebug)
@@ -228,40 +240,50 @@ vector2D getShortestPath(vector2D a, vector2D b)
         return a;
 }
 
+void magneticMine_searchForPlayer(t_mine* mine, float deltaTime)
+{
+    if (mine->target != NULL)
+    {
+        vector2D mineLoc = mine->target->entity.ref.origin; 
+        vector2D targetLoc = mine->entity.ref.origin;
+        vector2D targetXP = addVectors(targetLoc, (vector2D) {WINDOW_SIZE_X, 0.f});
+        vector2D targetXM = addVectors(targetLoc, (vector2D) {- WINDOW_SIZE_X, 0.f});
+        vector2D targetYP = addVectors(targetLoc, (vector2D) {0.f, WINDOW_SIZE_Y});
+        vector2D targetYM = addVectors(targetLoc, (vector2D) {0.f, - WINDOW_SIZE_Y});
+        
+        vector2D shortestPath = substractVectors(mineLoc, targetLoc);
+        shortestPath = getShortestPath(shortestPath, substractVectors(mineLoc, targetXP));
+        shortestPath = getShortestPath(shortestPath, substractVectors(mineLoc, targetXM));
+        shortestPath = getShortestPath(shortestPath, substractVectors(mineLoc, targetYP));
+        shortestPath = getShortestPath(shortestPath, substractVectors(mineLoc, targetYM));
+
+        vector2D direction = nullVector();
+        if (vectorLength(shortestPath) != 0.f)
+        {
+            direction = unitVector(shortestPath);
+            mine->entity.ref.unitI = direction;
+            mine->entity.ref.unitJ = rotateVector90(mine->entity.ref.unitI);
+            entity_move(&mine->entity, E_FORWARD, deltaTime);
+        }
+        mine->entity.maxSpeed = MAGNETIC_MINE_SPEED;
+    }
+}
+
 void mine_tick(t_mine* mine, float deltaTime)
 {
-    entity_tick(&mine->entity, deltaTime);
+    if (mine->followPlayer)
+        entity_tick(&mine->entity, deltaTime);
+    else
+    {
+        vector2D newVelocity = scaleVector(mine->entity.velocity, deltaTime);
+        mine->entity.ref.origin = addVectors(mine->entity.ref.origin, newVelocity);
+        if (mine->entity.isTeleportingAtBorder)
+            border_teleportation(&mine->entity.ref.origin);
+    }
 
     //Magnetic mines
     if (mine->followPlayer)
-    {
-        //search for player
-        if (mine->target != NULL)
-        {
-            vector2D mineLoc = mine->target->entity.ref.origin; 
-            vector2D targetLoc = mine->entity.ref.origin;
-            vector2D targetXP = addVectors(targetLoc, (vector2D) {WINDOW_SIZE_X, 0.f});
-            vector2D targetXM = addVectors(targetLoc, (vector2D) {- WINDOW_SIZE_X, 0.f});
-            vector2D targetYP = addVectors(targetLoc, (vector2D) {0.f, WINDOW_SIZE_Y});
-            vector2D targetYM = addVectors(targetLoc, (vector2D) {0.f, - WINDOW_SIZE_Y});
-            
-            vector2D shortestPath = substractVectors(mineLoc, targetLoc);
-            shortestPath = getShortestPath(shortestPath, substractVectors(mineLoc, targetXP));
-            shortestPath = getShortestPath(shortestPath, substractVectors(mineLoc, targetXM));
-            shortestPath = getShortestPath(shortestPath, substractVectors(mineLoc, targetYP));
-            shortestPath = getShortestPath(shortestPath, substractVectors(mineLoc, targetYM));
-
-            vector2D direction = nullVector();
-            if (vectorLength(shortestPath) != 0.f)
-            {
-                direction = unitVector(shortestPath);
-                mine->entity.ref.unitI = direction;
-                mine->entity.ref.unitJ = rotateVector90(mine->entity.ref.unitI);
-                entity_move(&mine->entity, E_FORWARD, deltaTime);
-            }
-            mine->entity.maxSpeed = MAGNETIC_MINE_SPEED;
-        }
-    }
+        magneticMine_searchForPlayer(mine, deltaTime);
     
     else
     {
@@ -269,19 +291,30 @@ void mine_tick(t_mine* mine, float deltaTime)
         switch (mine->sizeType)
         {
             case BIG :
-                speed *= 1.f;
+                speed *= BIG_SPEED;
                 break;
             case MEDIUM :
-                speed *= 1.3f;
+                speed *= MEDIUM_SPEED;
                 break;
             case SMALL :
-                speed *= 1.5f;
+                speed *= SMALL_SPEED;
                 break;
 
             default:
                 break;
         }
-        if (mine->entity.velocity.x != 0.0f && mine->entity.velocity.y != 0.0f)
+        if (!vectorIsNearlyEqual(mine->entity.velocity, nullVector(), 0.1))
             mine->entity.velocity = scaleVector(unitVector(mine->entity.velocity), speed);
     }
+}
+
+void throwFireball(t_mine* mine, t_dynamicArray* bullets)
+{
+	vector2D bulletLocation = mine->entity.ref.origin;
+	t_bullet* bullet 	    = dynamicArray_AddItem(bullets);
+
+	vector2D shootDirection = substractVectors(mine->target->entity.ref.origin, mine->entity.ref.origin);
+	
+	if (!floatIsNearlyEqual(vectorLength(shootDirection), 0, 0.001f))
+		bullet_init(bullet, bulletLocation, (vector2D) {0.f, 0.f}, unitVector(shootDirection), false);
 }

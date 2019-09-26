@@ -1,90 +1,61 @@
 #include "collisions2D.h"
 #include <math.h>
-#include <stdio.h>
 #include <stdbool.h>
 #include <stdlib.h>
 #include <assert.h>
 
-#define SIZE_OF_ARRAY(array) sizeof(array) / sizeof(array[0])
-
-bool point2D_point2D_collision(point2D a, point2D b, decimal delta)
+bool point2D_point2D_collision(point2D point1, point2D point2, decimal delta)
 {
-	return vectorIsNearlyEqual(a, b, delta);
+	return vectorIsNearlyEqual(point1, point2, delta);
 }
 
-bool point2D_line_collision(point2D point, line line, decimal delta)
+bool point2D_line_collision(point2D point1, line line1, decimal delta)
 {
-	vector2D relativePointLocation = substractVectors(point, line.point);
-	return floatIsNearlyEqual(relativePointLocation.x / line.direction.x, relativePointLocation.y / line.direction.y, delta);
+	vector2D relativePointLocation = substractVectors(point1, line1.point);
+	return floatIsNearlyEqual
+		(relativePointLocation.x / line1.direction.x, 
+		 relativePointLocation.y / line1.direction.y, 
+		 delta);
 }
 
-bool point2D_segment_collision(point2D point, segment segment, decimal delta)
+bool point2D_segment_collision(point2D point1, segment segment1, decimal delta)
 {
 	line line;
-	line.direction = substractVectors(segment.pointB, segment.pointA);
-	line.point = segment.pointA;
+	line.direction = substractVectors(segment1.pointB, segment1.pointA);
+	line.point = segment1.pointA;
 
-	if (!point2D_line_collision(point, line, delta))
+	if (!point2D_line_collision(point1, line, delta))
 	{	
-		printf("point/segment collision : not on line");
 		return false;
 	}
 
-	//create rectangle around the segment
-	/*vector2D min, max;
-	//set x
-	if (segment.pointA.x < segment.pointB.x)
-	{
-		min.x = segment.pointA.x;
-		max.x = segment.pointB.x;
-	}
-	else
-	{
-		max.x = segment.pointA.x;
-		min.x = segment.pointB.x;
-	}
-	//set y
-	if (segment.pointA.y < segment.pointB.y)
-	{
-		min.y = segment.pointA.y;
-		max.y = segment.pointB.y;
-	}
-	else
-	{
-		max.y = segment.pointA.y;
-		min.y = segment.pointB.y;
-	}*/
-	//point2D points[4] = {segment.pointA, segment.pointB};
 	point2D* pointList = malloc(2 * sizeof(*pointList));
-	pointList[0] = segment.pointA;
-	pointList[1] = segment.pointB;
+	pointList[0] = segment1.pointA;
+	pointList[1] = segment1.pointB;
 	axisAlignedRectangle rec = aabbRectangleGenerate(pointList, 2);
 	free(pointList);
-	printf("1 : %f 2 : %f 3 : %f 4 : %f\n", rec.center.x, rec.center.y, rec.halfSize.x, rec.halfSize.y);
-	return point2D_axisAlignedRectangle_collision(point, rec);
-	//if (!vectorIsNearlyEqual(point, scaleVector(addVectors(segment.pointA, segment.pointB), 2), line.direction));
-	//return (!(min.x < point.x && point.x < max.x && min.y < point.y && point.y < max.y)); // is point not in rectangle ?
+	return point2D_axisAlignedRectangle_collision(point1, rec);
 }
 
-bool point2D_circle_collision(point2D a, circle b)
+bool point2D_circle_collision(point2D point1, circle circle1)
 {
-	return vectorLength(substractVectors(a, b.center)) < b.length;
+	return vectorLength(substractVectors(point1, circle1.center)) < circle1.length;
 }
 
-bool point2D_axisAlignedRectangle_collision(point2D a, axisAlignedRectangle b)
+bool point2D_axisAlignedRectangle_collision(point2D point1, axisAlignedRectangle rec1)
 {
-	return (fabs(a.x - b.center.x) < b.halfSize.x //x axis collision
-		&& fabs(a.y - b.center.y < b.halfSize.y)); //y axis collision
+	return (fabs(point1.x - rec1.center.x) < rec1.halfSize.x //x axis collision
+		&& fabs(point1.y - rec1.center.y < rec1.halfSize.y)); //y axis collision
 }
 
-bool point2D_orientedRectangle_collision(point2D a, orientedRectangle b)
+bool point2D_orientedRectangle_collision(point2D point1, orientedRectangle orientedRec1)
 {
 	//change point coordinates to rectangle referential
-	a.x -= b.rectangle.center.x;
-	a.y -= b.rectangle.center.y;
-	a = rotateVector(a, - b.angle);
+	point1.x -= orientedRec1.rectangle.center.x;
+	point1.y -= orientedRec1.rectangle.center.y;
+	point1 = rotateVector(point1, - orientedRec1.angle);
 
-	return point2D_axisAlignedRectangle_collision(a, b.rectangle);
+	return point2D_axisAlignedRectangle_collision(point1, orientedRec1.rectangle);
 }
 
 bool point2D_convexPolygon_collision(point2D point1, convexPolygon convexPolygon1)
@@ -144,57 +115,12 @@ bool line_line_collision(line line1, line line2, decimal delta)
 	}
 }
 
-// bool line_circle_collision(line line, circle circle)
-// {
-// 	point2D circle_center = {circle.center.x, circle.center.y};
-// 	decimal x1 = line.point.x;
-// 	decimal y1 = line.point.y;
-// 	decimal x2 = x1 + line.direction.x;
-// 	decimal y2 = y1 + line.direction.y;
-
-// 	decimal distance = abs((y2 - y1) * circle_center.x + (x2 - x1) * circle_center.y + x2*x1 - y2*x1) 
-// 						/ sqrt(pow(y2-y1, 2) + pow(x2-x1,2));
-
-// 	return distance <= circle.length;
-// }
-
 bool line_circle_collision(line line1, circle circle1)
 {
-	//substractVectors(circle1.center, line1.point)
-	//decimal dot = dotProduct(normalVector(line1.direction), substractVectors(line1.point, circle1.center));
 	decimal dot = dotProduct(line1.direction, substractVectors(circle1.center, line1.point));
-	printf("dot product : %f\n", dot);
 	point2D nearestPoint = addVectors(line1.point, scaleVector(line1.direction, dot));
-	printf("nearest Point relative : x = %f y = %f\n", nearestPoint.x, nearestPoint.y);
 	decimal distance = distancePointToPoint(nearestPoint, circle1.center);
 	return distance < circle1.length;
-	/*
-	vector2D normal = normalVector(line1.direction);
-
-	point2D Ab = addVectors(line1.point, line1.direction);
-	assert(Ab.x - line1.point.x != 0); //division by 0
-
-	decimal slopeAX = (Ab.y - line1.point.y) / (Ab.x - line1.point.x);
-	decimal bAX = line1.point.y - slopeAX * line1.point.x;
-
-	printf("x : %f y : %f\n", Ab.x - line1.point.x, Ab.y - line1.point.x);
-	printf("x : %f b : %f\n", slopeAX, bAX);
-
-	point2D Ob = addVectors(circle1.center, normal);
-	decimal slopeOX = (Ob.y - circle1.center.y) / (Ob.x - circle1.center.x);
-	decimal bOX = circle1.center.y - slopeOX * circle1.center.x;
-
-	printf("x : %f b : %f\n", slopeOX, bOX);
-
-	point2D closestPoint;
-	closestPoint.x = (bOX - bAX) / (slopeAX - slopeOX);
-	closestPoint.y = slopeAX * closestPoint.x + bAX;
-
-	printf("x : %f y : %f\n", closestPoint.x, closestPoint.y);
-
-	decimal distance = distancePointToPoint(closestPoint, circle1.center);
-	return distance < circle1.length;
-	*/
 }
 
 segment* axisAlignedRectangle_to_segments(axisAlignedRectangle rec)
@@ -263,15 +189,16 @@ bool segment_segment_collision(segment segment1, segment segment2)
 	}
 }
 
-bool segment_circle_collision(segment segment, circle circle)
+bool segment_circle_collision(segment segment1, circle circle)
 {
-	line line = { unitVector(substractVectors(segment.pointA, segment.pointB)), segment.pointA };
+	line line = { unitVector(substractVectors(segment1.pointA, segment1.pointB)), segment1.pointA };
 
 	if (!line_circle_collision(line, circle))
 		return false;
 
-	decimal d = distancePointToPoint(segment.pointA, segment.pointB);
-	return (distancePointToPoint(segment.pointA, circle.center) > d || (distancePointToPoint(segment.pointB, circle.center) > d));
+	decimal d = distancePointToPoint(segment1.pointA, segment1.pointB);
+	return (distancePointToPoint(segment1.pointA, circle.center) > d 
+		|| (distancePointToPoint(segment1.pointB, circle.center) > d));
 }
 
 bool segment_axisAlignedRectangle_collision(segment segment1, axisAlignedRectangle rectangle1)
@@ -296,16 +223,24 @@ bool segment_axisAlignedRectangle_collision(segment segment1, axisAlignedRectang
 	return false;
 }
 
-bool circle_circle_collision(circle a, circle b)
+bool circle_circle_collision(circle circle1, circle circle2)
 {
-	return vectorLength(substractVectors(a.center, b.center)) < a.length + b.length;
+	return vectorLength(substractVectors(circle1.center, circle2.center)) 
+			< circle1.length + circle2.length;
 }
 
-bool axisAlignedRectangle_axisAlignedRectangle_collision(axisAlignedRectangle a, axisAlignedRectangle b)
+bool axisAlignedRectangle_axisAlignedRectangle_collision
+	(axisAlignedRectangle rec1, axisAlignedRectangle rec2)
 {
-	return floatIsNearlyEqual(a.center.x, b.center.x, a.halfSize.x + b.halfSize.x) //x axis collision
-		&& floatIsNearlyEqual(a.center.y, b.center.y, a.halfSize.y + b.halfSize.y); //y axis collision
+	return floatIsNearlyEqual(rec1.center.x, rec2.center.x, 
+							  rec1.halfSize.x + rec2.halfSize.x) //x axis collision
+		&& floatIsNearlyEqual(rec1.center.y, rec2.center.y, 
+							  rec1.halfSize.y + rec2.halfSize.y); //y axis collision
 }
+
+////////////////////////////////////////////////
+//////////////// SAT COLLISIONS //////////////// 
+////////////////////////////////////////////////
 
 range projectPolygon(convexPolygon* convexPolygon1, vector2D* axis)
 {
@@ -345,7 +280,7 @@ bool circle_convexPolygon_collision(circle circle1, convexPolygon convexPolygon1
 			convexPolygon1.points[i], convexPolygon1.points[(i + 1) % convexPolygon1.size]));
 
 		polygonProjection = projectPolygon(&convexPolygon1, &projectionAxis);
-		circleProjection = projectCircle(&circle1, &projectionAxis);
+		circleProjection  = projectCircle(&circle1, &projectionAxis);
 
 		if (!rangeIntersect(polygonProjection, circleProjection))
 		{
@@ -378,7 +313,7 @@ bool convexPolygon_convexPolygon_SAT(convexPolygon convexPolygon1, convexPolygon
 	{
 		normal = normalVector(substractVectors(
 			convexPolygon1.points[i], convexPolygon1.points[(i + 1) % convexPolygon1.size]));
-		normal = unitVector(normal);
+		//normal = unitVector(normal);
 
 		range1 = projectPolygon(&convexPolygon1, &normal);
 		range2 = projectPolygon(&convexPolygon2, &normal);
@@ -388,7 +323,6 @@ bool convexPolygon_convexPolygon_SAT(convexPolygon convexPolygon1, convexPolygon
 			return false;
 		}
 	}
-	//fprintf(stderr, "size : %u %u\n", convexPolygon1.size, convexPolygon2.size);
 
 	return true;
 }
@@ -423,15 +357,19 @@ bool polygon_polgyon_collision(polygon* poly1, polygon* poly2)
 	if (! axisAlignedRectangle_axisAlignedRectangle_collision(poly1->aabb, poly2->aabb))
 		return false;
 
+	//for optimization
 	unsigned int i = 0;
-	unsigned int j; //declare j before the loop => better for optimization
-	//opti ?
-	while (i < poly1->nbConvexPolygons)
+	convexPolygon* convexPolygonList1 = poly1->convexPolygons;
+	unsigned int size1 = poly1->nbConvexPolygons;
+	convexPolygon* convexPolygonList2 = poly2->convexPolygons;
+	unsigned int size2 = poly2->nbConvexPolygons;
+
+	while (i < size1)
 	{
-		j = 0;
-		while (j < poly2->nbConvexPolygons)
+		unsigned int j = 0;
+		while (j < size2)
 		{
-			if (convexPolygon_convexPolygon_collision(poly1->convexPolygons[i], poly2->convexPolygons[j]))
+			if (convexPolygon_convexPolygon_collision(convexPolygonList1[i], convexPolygonList2[j]))
 			{
 				return true;
 			}

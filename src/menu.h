@@ -17,10 +17,11 @@ typedef struct
     //t_dynamicArray textboxes;
     t_button* button;
     t_textbox* textbox;
+    t_textbox* helpTextBox;
 } t_menu;
 
-t_menu* menu_create(t_assets* assets);
-void menu_loop(t_assets* assets, float deltaTime, t_level* level);
-void menu_destroy(t_menu* menu);
+t_menu* menu_create (t_assets* assets);
+void menu_loop      (t_assets* assets, float deltaTime, t_level* level);
+void menu_destroy   (t_menu* menu);
 
 #endif

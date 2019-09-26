@@ -78,6 +78,11 @@ vector2D rotateVector90(vector2D vec)
 	return (vector2D) { - vec.y, vec.x };
 }
 
+vector2D unrotateVector90(vector2D vec)
+{
+	return (vector2D) { vec.y, vec.x };
+}
+
 vector2D rotatePoint(point2D toRotate, point2D center, decimal angle)
 {
 	point2D relativeLoc = substractVectors(toRotate, center);
@@ -177,16 +182,6 @@ axisAlignedRectangle aabbRectangleGenerate(point2D* points, unsigned int size)
 	return rect;
 }
 
-// axisAlignedRectangle circleToAxisAlignedRectangle(circle* circle1)
-// {
-// 	axisAlignedRectangle rect;
-
-// 	rect.halfSize.x = circle1->length;
-// 	rect.halfSize.y = circle1->length;
-// 	rect.center = circle1->center;
-// 	return rect;
-// }
-
 axisAlignedRectangle fuseAxisAlignedRectangles(axisAlignedRectangle a, axisAlignedRectangle b)
 {
 	axisAlignedRectangle returned; 
@@ -220,7 +215,6 @@ void polygon_free(polygon* polygon1)
 		free(polygon1->convexPolygons[i].points);
 
 	free(polygon1->convexPolygons);
-	//free(polygon);
 }
 
 void polygon_aabb_generate(polygon* polygon1)
@@ -240,8 +234,7 @@ void polygon_aabb_generate(polygon* polygon1)
 
 point2D getClosestPointToPoint(point2D point1, point2D* points, unsigned int nbPoints)
 {
-	if (nbPoints == 0)
-		return nullVector(); //assert
+	assert(nbPoints > 0); //Can't get the closest point if there is no point
 
 	point2D returnedPoint = points[0];
 	float minLength       = distancePointToPoint(point1, returnedPoint);

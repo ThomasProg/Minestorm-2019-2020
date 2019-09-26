@@ -93,7 +93,8 @@ vector2D negateVector(vector2D vec);
 
 vector2D rotateVector(vector2D vec, decimal angle);
 
-vector2D rotateVector90(vector2D vec);
+vector2D rotateVector90  (vector2D vec);
+vector2D unrotateVector90(vector2D vec);
 
 vector2D rotatePoint(point2D toRotate, point2D center, decimal angle);
 

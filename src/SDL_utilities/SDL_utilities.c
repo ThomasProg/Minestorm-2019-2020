@@ -5,9 +5,9 @@ t_assets* assets_create
 {
 	t_assets* assets = malloc(sizeof(t_assets));
 
-	assets->render   = render_create(5);
-	assets->audio    = audio_create(5);
-	assets->font     = font_create(5);
+	assets->render   = render_create(nbTextures);
+	assets->audio    = audio_create(nbSounds);
+	assets->font     = font_create(nbFonts);
 	
 	return assets;
 }

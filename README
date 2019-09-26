@@ -1,16 +1,16 @@
 ===============================
-==========DESCRIPTION==========
+==========DESCRIPTION========== 
 ===============================
 
 This game is inspired from Minestorm, the Vectrex Game.
 The player controls a space ship.
 He has to destroy enemies by shooting them to get to the next levels.
 The difficulty increases with each new level.
-There are different enemy types.
+There are 4 different enemy types, and the minelayer.
 The game is playable with 2 players.
 
 ==============================
-==========HOW TO RUN==========
+==========HOW TO RUN========== 
 ==============================
 
 - Prerequisites : 
@@ -19,15 +19,15 @@ The game is playable with 2 players.
 	- Having SDL, TTF_FONT and SDL_MIXER librairies linked
  
 - Download the folder containing this file
-- Move into the same directory as the Makefile
+- Move into the same directory as the Makefile (and this file)
 - Run the Makefile by using the "make" command
 - Run "./exe"
 - Enjoy
 
-If an error occurs, make sure to read the errors list.
+If an error occurs, make sure to read the error outputs from the compiler.
 
 =============================
-==========COMMANDES==========
+==========COMMANDES========== 
 =============================
 
 ========IN MENU========
@@ -54,30 +54,27 @@ Options :
 - Press C to show and hide Collision Boxes
 - Press Escape to go back to the menu
 
-===============================
-==========HOW TO PLAY==========
-===============================
-
-
 ==============================
-==========KNOWN BUGS==========
+==========KNOWN BUGS========== 
 ==============================
 
-??????????????????????????????
 - Some collisions may not occur due to A Posteriori collision detection.
 - Keyboards may limit the amout of inputs pressed at the same time, causing trouble while playing in multiplayer.
+- PLAY button's collision set as a square, not a circle
+- Entities can be rendered on top of text
+- MagneticMines' rotation is set; when the path changes, the mine rotates suddenly
+- When the player dies, he can respawn on a mine, as well as when he is teleporting.
+	However, it dissuades the player from teleporting (which can be too powerfull otherwise), 
+	or from dying.
 
-=================================
-==========USED TECHNICS==========
-=================================
-
-- game.c initializes and destroys the game properly. 
-	 It also contains the game loop.
+==================================
+==========USED MECHANICS========== 
+==================================
 
 - A Custom Dynamic Array.
 	- Code in src/DynamicArray/ .
 	- Used to allocate the list of Players, mines, spawners and bullets.
-	- Used for SDL_Utilities/ too.
+	- Used for SDL_Utilities/render.c too (font.c and audio.c to modify).
 	- Pros : 
 		- A speed efficient Dynamic Array.
 		- Can be used as a Static Array.
@@ -91,7 +88,7 @@ Options :
 	- Pros :
 		- Improve performances
 
-- Levels, used as ue4 ones. Do not confuse with Minestorm levels.
+- Levels, used similarly to ue4 ones. Do not confuse with Minestorm levels.
 	- Code in src/levels.c and .h
 	- Used to initialize and destroy world and menu
 	- Game loop redirected to world or menu
@@ -99,41 +96,73 @@ Options :
 		- Easy to add new levels (option menu, new games...)
 		- Bugs from one level can't influence other levels
 
-???????????????????????????????
+============================
+==========TO DEBUG========== 
+============================
+
+- src/macros.h contains a list of macros
+- You can modify the starting level to test different mines
+	- 1 = floatingMine
+	- 2 = magneticMine
+	- 5 = fireballMine
+	- 14 = magneticFireballMine
+- You can also modify the size and the speed of the entities, while it is not recommanded
+- The window can also be scaled
 
 
 
-===============================
-==========MATHEMATICS==========
-===============================
 
-========Vector2D Tools========
+
+===================================================
+====================MATHEMATICS==================== 
+===================================================
+
+========VECTOR2D TOOLS========
 - In src/vecto2D/vector2D.c and .h
 
 ==========REFERENTIAL==========
-- Referential in src/vector2D/objects.h
-- LocalToWorld and WorldToLocal functions in src/vector2D/objects.c
+- Referential in src/vector2D/referential.h
+- LocalToWorld and WorldToLocal functions in src/vector2D/referential.c
 
 ========NEWTONIAN MODEL========
-???????????????????????????????
-ACCELERATION :
-SPEED :
+Acceleration initialized and added to velocity in : 
+	- entity_moveForward (src/entities/entities.c (l.116))
+
+Velocity added to location in : 
+	- entity_tick (src/entities/entities.c (l.96))
+Friction in : 
+	- entity_tick (src/entities/entities.c (l.85))
 DRIFT :
+	- entity_tick (src/entities/entities.c (l.100))
 
 ========SAT COLLISIONS========
-- Collision functions in src/vector2D/collisions.c (from l.????? to l.?????)
-
+- Collision functions in :
+	- src/vector2D/collisions.c (l.242)
+- Main SAT functions : 
+	- polygon_polygon_collisions
+	- convexPolygon_convexPolygon_collision
+	- circle_convexPolygon_collision
 
 ========AABB COLLISIONS========
 - Used in src/vector2D/collisions.c :
-	- In convexPolygon_convexPolygon_collisions (l.?????)
-	- In polygon_polygon_collisions (l.?????)
-- Initialized in ?????
+	- In convexPolygon_convexPolygon_collisions (l.333)
+	- In polygon_polygon_collisions (l.357)
+- AABB assigned in src/vector2D/vector2D.c:
+	- In polygon_aabb_generate (l.220)
+- Function declared in :
+	-  axisAlignedRectangle_axisAlignedRectangle_collision (src/vector2D/collisions.c (l.232))
+
+- polygon_aabb_generate called in :
+	- src/entities/player.c (l.114)
+	- src/entities/mines.c (l.229)
 
 =====GAMEPLAY OBJECTS CREATION METHODS=====
-????????????????????????????????????????????
 
-
+src/entities/player.c 	: player_init (l.89)
+src/entities/bullet.c 	: bulet_init (l.5)
+src/entities/mines.c   	: mine_init (l.162) 
+						  (and the previous functions, floatingMine_init, ...)
+src/entities/entities.c : entity_init (l.15)
 
 
 

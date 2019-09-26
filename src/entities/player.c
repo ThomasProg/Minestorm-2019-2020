@@ -6,6 +6,7 @@
 #include "dynamicArray/dynamicArray.h"
 #include "player.h"
 #include "bullets.h"
+#include "world.h"
 #include "macros.h"
 
 void player_collision_init(polygon* collision)
@@ -15,26 +16,17 @@ void player_collision_init(polygon* collision)
 
 	vector2D* points = malloc(3 * sizeof(point2D));
 	points[0] = (point2D) {0.0, 0.0};
-	points[1] = (point2D) {-50.0, 50.0};
-	points[2] = (point2D) {100, 0.0};
+	points[1] = (point2D) {-50.0 * SHIP_SIZE, 50.0 * SHIP_SIZE};
+	points[2] = (point2D) {100 * SHIP_SIZE, 0.0};
 	collision->convexPolygons[0].size = 3;	
 	collision->convexPolygons[0].points = points;	
 
 	points = malloc(3 * sizeof(point2D));
 	points[0] = (point2D) {0.0, 0.0};
-	points[1] = (point2D) {-50.0, -50.0};
-	points[2] = (point2D) {100.0, 0.0};
+	points[1] = (point2D) {-50.0 * SHIP_SIZE, -50.0 * SHIP_SIZE};
+	points[2] = (point2D) {100.0 * SHIP_SIZE, 0.0};
 	collision->convexPolygons[1].size = 3;	
 	collision->convexPolygons[1].points = points;	
-
-	//scale convexPolygonsArray
-	for (unsigned int i = 0; i < collision->nbConvexPolygons; i++)
-	{	
-		for (unsigned int j = 0; j < collision->convexPolygons[i].size; j++)
-		{
-			collision->convexPolygons[i].points[j] = scaleVector(collision->convexPolygons[i].points[j], SHIP_SIZE);
-		}
-	}
 }
 
 bInputs bInput_create()
@@ -188,7 +180,6 @@ void player_input_start(t_player* player, int key, bool start)
 
 void player_damages(t_player* player, t_dynamicArray* players, unsigned int id)
 {
-	//player damage
 	if (player->life == 1)
 	{
 		player_destroy(player);

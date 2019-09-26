@@ -1,5 +1,8 @@
 #include <stdlib.h>
+#include "world.h"
+#include "entities/spawner.h"
 #include "minelayer.h"
+#include "worldField.h"
 #include "macros.h"
 
 convexPolygon minelayer_trunk_create()
@@ -107,4 +110,47 @@ void minelayer_create(t_dynamicArray* mines)
     vector2D loc = minelayer_getSpawnLocation();
     
     mine_init(mine, 4, loc, BIG);
+}
+
+void minelayer_tick(t_world* world, t_mine* mine, unsigned int mineID, float deltaTime)
+{
+    if (mine->mineLayerDelay < 0.f)
+    {
+        t_spawner* spawner;
+        spawner = dynamicArray_AddItem(&world->spawners);
+        spawner->location = mine->entity.ref.origin;
+        spawner->size = BIG;
+        mine->mineLayerDelay = MINELAYER_ACTION_DELAY;
+        world->spawnDelay = 2.f;
+
+        unsigned int newSize = SMALL;
+        unsigned int currentID = rand() % 4;
+        if (currentID == 0)
+            world->minesBySize[newSize].floatingMine++;
+        if (currentID == 1)
+            world->minesBySize[newSize].magneticMine++;
+        if (currentID == 2)
+            world->minesBySize[newSize].fireballMine++;
+        if (currentID == 3)
+            world->minesBySize[newSize].magneticFireballMine++;
+    }
+    else
+        mine->mineLayerDelay -= deltaTime;
+
+    if (border_teleportation(&mine->entity.ref.origin))
+    {
+        mine_destroy(mine);
+        dynamicArray_RemoveItem(&world->mines, mineID);
+    }
+}
+
+void minelayer_init(t_mine* mine, E_SIZE sizeType)
+{
+    minelayer_collisionBox_init(mine->entity.collision);
+    mine->followPlayer = false;
+    mine->throwFireballs = false;
+    mine->isMineLayer = true;
+    mine->sizeType = BIG;
+    mine->givenScore = 1000;
+    mine->entity.isTeleportingAtBorder = false;
 }

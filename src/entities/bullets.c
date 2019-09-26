@@ -2,13 +2,6 @@
 #include "worldField.h"
 #include "macros.h"
 
-// t_bullet* bullet_create()
-// {
-// 	t_bullet* bullet = malloc(sizeof(t_bullet));
-
-//     return bullet;
-// }
-
 void bullet_init(t_bullet* bullet, vector2D location, 
                  vector2D relativeVelocity, vector2D shootDirection, bool isBullet)
 {
@@ -17,12 +10,7 @@ void bullet_init(t_bullet* bullet, vector2D location,
     bullet->timeAlive = 0.f;
     bullet->isBullet = isBullet;
 
-    bullet->velocity = scaleVector(shootDirection, BULLET_SPEED); //add velocity at shooting
-}
-
-void bullet_destroy(t_bullet* bullet)
-{
-	//free(bullet);
+    bullet->velocity = addVectors(scaleVector(shootDirection, BULLET_SPEED), relativeVelocity); //add velocity at shooting
 }
 
 void bullet_render(SDL_Renderer* renderer, t_bullet* bullet, unsigned int nbLines)
